@@ -4,12 +4,17 @@
 	import { supabase } from '$lib/supabase';
 
 	const gameCode = page.params.code;
+	const timerDuration = parseInt(page.url.searchParams.get('timer') || '0', 10);
 	let isWaiting = $state(true);
 	let isHost = $state(false);
 	let gameStarted = $state(false);
 	let currentPlayer = $state('X');
 	let board = $state(Array(9).fill(''));
 	let winner = $state<string | null>(null);
+	let timeLeft = $state(timerDuration);
+	let timerInterval: number | undefined;
+	let gameUrl = $state('');
+	let showCopiedMessage = $state(false);
 
 	const subscription = supabase
 		.channel(`game:${gameCode}`)
@@ -20,15 +25,22 @@
 		})
 		.on('broadcast', { event: 'game_start' }, () => {
 			gameStarted = true;
+			if (timerDuration > 0) startTimer();
 		})
 		.on('broadcast', { event: 'game_move' }, ({ payload }) => {
 			const { index, player } = payload;
 			board[index] = player;
 			currentPlayer = player === 'X' ? 'O' : 'X';
+			if (timerDuration > 0) {
+				clearInterval(timerInterval);
+				timeLeft = timerDuration;
+				startTimer();
+			}
 			checkWinner();
 		});
 
 	onMount(async () => {
+		gameUrl = `${window.location.origin}/game/${gameCode}`;
 		await subscription.subscribe(async (status) => {
 			if (status === 'SUBSCRIBED') {
 				const presenceState = subscription.presenceState();
@@ -40,7 +52,32 @@
 
 	onDestroy(() => {
 		subscription.unsubscribe();
+		if (timerInterval) clearInterval(timerInterval);
 	});
+
+	function startTimer() {
+		if (timerInterval) clearInterval(timerInterval);
+		timeLeft = timerDuration;
+		timerInterval = setInterval(() => {
+			timeLeft--;
+			if (timeLeft <= 0) {
+				clearInterval(timerInterval);
+				if (!winner) {
+					currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+					timeLeft = timerDuration;
+					startTimer();
+				}
+			}
+		}, 1000);
+	}
+
+	async function copyGameUrl() {
+		await navigator.clipboard.writeText(gameUrl);
+		showCopiedMessage = true;
+		setTimeout(() => {
+			showCopiedMessage = false;
+		}, 2000);
+	}
 
 	function startGame() {
 		subscription.send({
@@ -49,6 +86,7 @@
 			payload: {}
 		});
 		gameStarted = true;
+		if (timerDuration > 0) startTimer();
 	}
 
 	function makeMove(index: number) {
@@ -62,6 +100,11 @@
 		});
 
 		currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+		if (timerDuration > 0) {
+			clearInterval(timerInterval);
+			timeLeft = timerDuration;
+			startTimer();
+		}
 		checkWinner();
 	}
 
@@ -80,12 +123,14 @@
 		for (const [a, b, c] of lines) {
 			if (board[a] && board[a] === board[b] && board[a] === board[c]) {
 				winner = board[a];
+				if (timerInterval) clearInterval(timerInterval);
 				return;
 			}
 		}
 
 		if (board.every((cell) => cell !== '')) {
 			winner = 'draw';
+			if (timerInterval) clearInterval(timerInterval);
 		}
 	}
 
@@ -94,6 +139,8 @@
 		currentPlayer = 'X';
 		winner = null;
 		gameStarted = false;
+		if (timerInterval) clearInterval(timerInterval);
+		if (timerDuration > 0) timeLeft = timerDuration;
 	}
 </script>
 
@@ -101,7 +148,15 @@
 	{#if isWaiting}
 		<div class="text-center">
 			<h2 class="mb-4 text-2xl font-bold">Game Code: {gameCode}</h2>
-			<p class="mb-8">Share this code with your friend to start playing!</p>
+			<div class="mb-8">
+				<p class="mb-2">Share this link with your friend to start playing!</p>
+				<div class="join">
+					<input type="text" value={gameUrl} readonly class="input input-bordered join-item w-96" />
+					<button class="btn btn-primary join-item" onclick={copyGameUrl}>
+						{showCopiedMessage ? 'Copied!' : 'Copy'}
+					</button>
+				</div>
+			</div>
 			<div class="flex flex-col items-center gap-4">
 				<div class="loading loading-dots loading-lg"></div>
 				<p>Waiting for your friend to join...</p>
@@ -112,6 +167,9 @@
 			<h2 class="mb-4 text-2xl font-bold">Friend joined!</h2>
 			{#if isHost}
 				<button class="btn btn-primary" onclick={startGame}>Start Game</button>
+				{#if timerDuration > 0}
+					<p class="mt-2 text-sm">Timer set to {timerDuration} seconds per turn</p>
+				{/if}
 			{:else}
 				<p>Waiting for host to start the game...</p>
 				<div class="loading loading-dots loading-lg mt-4"></div>
@@ -127,9 +185,19 @@
 					<button class="btn btn-primary mt-4" onclick={resetGame}>Play Again</button>
 				</div>
 			{:else}
-				<h2 class="mb-8 text-2xl font-bold">
+				<h2 class="mb-4 text-2xl font-bold">
 					{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
 				</h2>
+				{#if timerDuration > 0}
+					<div class="mb-4">
+						<div
+							class="radial-progress {timeLeft <= 3 ? 'text-error' : ''}"
+							style="--value:{(timeLeft / timerDuration) * 100}; --size:4rem;"
+						>
+							{timeLeft}s
+						</div>
+					</div>
+				{/if}
 			{/if}
 
 			<div class="grid grid-cols-3 gap-4">
