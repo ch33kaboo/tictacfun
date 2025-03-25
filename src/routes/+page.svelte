@@ -1,6 +1,8 @@
 <script lang="ts">
 	let activeTab = $state('create');
 	let gameCode = $state('');
+	let timerEnabled = $state(false);
+	let timerDuration = $state(10);
 
 	function generateGameCode() {
 		return Math.random().toString().substring(2, 8);
@@ -8,7 +10,12 @@
 
 	function createGame() {
 		const code = generateGameCode();
-		window.location.href = `/game/${code}`;
+		const searchParams = new URLSearchParams();
+		if (timerEnabled) {
+			searchParams.set('timer', timerDuration.toString());
+		}
+		const queryString = searchParams.toString();
+		window.location.href = `/game/${code}${queryString ? `?${queryString}` : ''}`;
 	}
 
 	function joinGame() {
@@ -38,6 +45,27 @@
 		</div>
 
 		{#if activeTab === 'create'}
+			<div class="mb-6">
+				<label class="label cursor-pointer">
+					<span class="label-text">Enable turn timer</span>
+					<input type="checkbox" class="toggle toggle-primary" bind:checked={timerEnabled} />
+				</label>
+				{#if timerEnabled}
+					<div class="form-control mt-2">
+						<label class="label" for="timer">
+							<span class="label-text">Timer duration (seconds)</span>
+						</label>
+						<input
+							type="number"
+							id="timer"
+							class="input input-bordered w-full"
+							min="5"
+							max="60"
+							bind:value={timerDuration}
+						/>
+					</div>
+				{/if}
+			</div>
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<div class="card bg-base-100 shadow-md transition-transform hover:scale-105">
 					<div class="card-body">
