@@ -1,2 +1,83 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	let activeTab = $state('create');
+	let gameCode = $state('');
+
+	function generateGameCode() {
+		return Math.random().toString().substring(2, 8);
+	}
+
+	function createGame() {
+		const code = generateGameCode();
+		window.location.href = `/game/${code}`;
+	}
+
+	function joinGame() {
+		if (gameCode.length === 6) {
+			window.location.href = `/game/${gameCode}`;
+		}
+	}
+</script>
+
+<main class="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-8">
+	<h1 class="mb-8 text-center text-4xl font-bold">Invite your friends and play Tic-Tac-Toe now!</h1>
+
+	<div class="bg-base-200 w-full max-w-2xl rounded-lg p-6 shadow-xl">
+		<div class="tabs tabs-boxed mb-6">
+			<button
+				class="tab {activeTab === 'create' ? 'tab-active' : ''}"
+				onclick={() => (activeTab = 'create')}
+			>
+				Create Game
+			</button>
+			<button
+				class="tab {activeTab === 'join' ? 'tab-active' : ''}"
+				onclick={() => (activeTab = 'join')}
+			>
+				Join Game
+			</button>
+		</div>
+
+		{#if activeTab === 'create'}
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div class="card bg-base-100 shadow-md transition-transform hover:scale-105">
+					<div class="card-body">
+						<h2 class="card-title">Classic Tic-Tac-Toe</h2>
+						<p>Play the traditional 3x3 game with a friend!</p>
+						<div class="card-actions justify-end">
+							<button class="btn btn-primary" onclick={createGame}>Create Game</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="card bg-base-100 shadow-md transition-transform hover:scale-105">
+					<div class="card-body">
+						<h2 class="card-title">Classic Tic-Tac-Toe</h2>
+						<p>Play the traditional 3x3 game with a friend!</p>
+						<div class="card-actions justify-end">
+							<button class="btn btn-primary" onclick={createGame}>Create Game</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		{:else}
+			<div class="flex flex-col items-center gap-4">
+				<div class="form-control w-full max-w-md">
+					<label class="label" for="gameCode">
+						<span class="label-text">Enter 6-digit game code</span>
+					</label>
+					<input
+						type="text"
+						id="gameCode"
+						placeholder="Enter code"
+						class="input input-bordered w-full"
+						maxlength="6"
+						bind:value={gameCode}
+					/>
+				</div>
+				<button class="btn btn-primary" onclick={joinGame} disabled={gameCode.length !== 6}>
+					Join Game
+				</button>
+			</div>
+		{/if}
+	</div>
+</main>
