@@ -3,10 +3,10 @@
 	import { onMount } from 'svelte';
 
 	let { children } = $props();
-	let theme = $state('cmyk');
+	let theme = $state('sunset');
 
 	onMount(() => {
-		const savedTheme = localStorage.getItem('theme') || 'cmyk';
+		const savedTheme = localStorage.getItem('theme') || 'sunset';
 		theme = savedTheme;
 		document.documentElement.setAttribute('data-theme', theme);
 	});
