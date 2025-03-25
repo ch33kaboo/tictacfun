@@ -16,6 +16,12 @@
 	let gameUrl = $state('');
 	let showCopiedMessage = $state(false);
 
+	onMount(() => {
+		// Get the URL parameters
+		const urlParams = new URLSearchParams(window.location.search);
+		isHost = urlParams.get('host') === 'true';
+	});
+
 	const subscription = supabase
 		.channel(`game:${gameCode}`)
 		.on('presence', { event: 'sync' }, () => {
@@ -43,8 +49,8 @@
 		gameUrl = `${window.location.origin}/game/${gameCode}`;
 		await subscription.subscribe(async (status) => {
 			if (status === 'SUBSCRIBED') {
-				const presenceState = subscription.presenceState();
-				isHost = Object.keys(presenceState).length === 0;
+				const urlParams = new URLSearchParams(window.location.search);
+				isHost = urlParams.get('host') === 'true';
 				await subscription.track({ user: isHost ? 'host' : 'guest' });
 			}
 		});

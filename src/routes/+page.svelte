@@ -14,13 +14,12 @@
 		if (timerEnabled) {
 			searchParams.set('timer', timerDuration.toString());
 		}
-		const queryString = searchParams.toString();
-		window.location.href = `/game/${code}${queryString ? `?${queryString}` : ''}`;
+		window.location.href = `/game/${code}?host=true`;
 	}
 
 	function joinGame() {
 		if (gameCode.length === 6) {
-			window.location.href = `/game/${gameCode}`;
+			window.location.href = `/game/${gameCode}?host=false`;
 		}
 	}
 </script>
