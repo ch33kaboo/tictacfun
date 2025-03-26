@@ -46,7 +46,7 @@
 		});
 
 	onMount(async () => {
-		gameUrl = `${window.location.origin}/game/${gameCode}`;
+		gameUrl = `${window.location.origin}/game/${gameCode}?host=false`;
 		await subscription.subscribe(async (status) => {
 			if (status === 'SUBSCRIBED') {
 				const urlParams = new URLSearchParams(window.location.search);
@@ -157,7 +157,12 @@
 			<div class="mb-8">
 				<p class="mb-2">Share this link with your friend to start playing!</p>
 				<div class="join">
-					<input type="text" value={gameUrl} readonly class="input input-bordered join-item w-96" />
+					<input
+						type="text"
+						value={gameUrl}
+						readonly
+						class="input input-bordered join-item w-full sm:w-96"
+					/>
 					<button class="btn btn-primary join-item" onclick={copyGameUrl}>
 						{showCopiedMessage ? 'Copied!' : 'Copy'}
 					</button>
