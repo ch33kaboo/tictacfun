@@ -15,6 +15,9 @@
 	let timerInterval: number | undefined;
 	let gameUrl = $state('');
 	let showCopiedMessage = $state(false);
+	let playAgainRequested = $state(false);
+	let playAgainInitiator: 'host' | 'guest' | null = $state(null);
+	let bothPlayersReady = $state(false);
 
 	onMount(() => {
 		// Get the URL parameters
@@ -43,6 +46,23 @@
 				startTimer();
 			}
 			checkWinner();
+		})
+		.on('broadcast', { event: 'play_again_request' }, ({ payload }) => {
+			const { initiator } = payload;
+			playAgainInitiator = initiator;
+
+			if (!playAgainRequested) {
+				playAgainRequested = true;
+			} else {
+				bothPlayersReady = true;
+				resetGame();
+				startGame();
+			}
+		})
+		.on('broadcast', { event: 'start_game_request' }, ({ payload }) => {
+			bothPlayersReady = true;
+			resetGame();
+			startGame();
 		});
 
 	onMount(async () => {
@@ -140,13 +160,48 @@
 		}
 	}
 
+	function requestPlayAgain() {
+		playAgainRequested = true;
+		playAgainInitiator = isHost ? 'host' : 'guest';
+		subscription.send({
+			type: 'broadcast',
+			event: 'play_again_request',
+			payload: { initiator: isHost ? 'host' : 'guest' }
+		});
+	}
+
+	function requestStartGame() {
+		winner = null;
+		bothPlayersReady = true;
+		resetGame();
+		startGame();
+		subscription.send({
+			type: 'broadcast',
+			event: 'start_game_request',
+			payload: {}
+		});
+	}
+
 	function resetGame() {
 		board = Array(9).fill('');
 		currentPlayer = 'X';
 		winner = null;
-		gameStarted = false;
+		gameStarted = true;
+		playAgainRequested = false;
+		playAgainInitiator = null;
+		bothPlayersReady = false;
 		if (timerInterval) clearInterval(timerInterval);
 		if (timerDuration > 0) timeLeft = timerDuration;
+	}
+
+	function shouldShowPlayAgainMessage() {
+		if (!playAgainRequested || bothPlayersReady) return false;
+		return isHost ? playAgainInitiator === 'host' : playAgainInitiator === 'guest';
+	}
+
+	function shouldShowAcceptMessage() {
+		if (!playAgainRequested || bothPlayersReady) return false;
+		return isHost ? playAgainInitiator === 'guest' : playAgainInitiator === 'host';
 	}
 </script>
 
@@ -193,7 +248,16 @@
 					<h2 class="text-2xl font-bold">
 						{winner === 'draw' ? "It's a draw!" : `Player ${winner} wins!`}
 					</h2>
-					<button class="btn btn-primary mt-4" onclick={resetGame}>Play Again</button>
+					{#if !playAgainRequested}
+						<button class="btn btn-primary mt-4" onclick={requestPlayAgain}>Play Again</button>
+					{:else if !bothPlayersReady}
+						{#if shouldShowPlayAgainMessage()}
+							<p class="mt-4 text-lg">We sent an invitation to your friend to play again</p>
+						{:else if shouldShowAcceptMessage()}
+							<p class="mt-4 text-lg">Your friend wants to play again</p>
+							<button class="btn btn-primary mt-2" onclick={requestStartGame}>Accept</button>
+						{/if}
+					{/if}
 				</div>
 			{:else}
 				<h2 class="mb-4 text-2xl font-bold">
@@ -211,19 +275,21 @@
 				{/if}
 			{/if}
 
-			<div class="grid grid-cols-3 gap-4">
-				{#each board as cell, index}
-					<button
-						class="btn btn-lg aspect-square text-2xl font-bold {cell
-							? 'btn-disabled'
-							: 'btn-outline'}"
-						onclick={() => makeMove(index)}
-						disabled={!!cell || !!winner || currentPlayer !== (isHost ? 'X' : 'O')}
-					>
-						{cell}
-					</button>
-				{/each}
-			</div>
+			{#if !winner || bothPlayersReady}
+				<div class="grid grid-cols-3 gap-4">
+					{#each board as cell, index}
+						<button
+							class="btn btn-lg aspect-square text-2xl font-bold {cell
+								? 'btn-disabled'
+								: 'btn-outline'}"
+							onclick={() => makeMove(index)}
+							disabled={!!cell || !!winner || currentPlayer !== (isHost ? 'X' : 'O')}
+						>
+							{cell}
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>
