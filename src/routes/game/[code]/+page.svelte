@@ -47,6 +47,15 @@
 			}
 			checkWinner();
 		})
+		.on('broadcast', { event: 'turn_timeout' }, () => {
+			if (!winner) {
+				currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+				if (timerDuration > 0) {
+					timeLeft = timerDuration;
+					startTimer();
+				}
+			}
+		})
 		.on('broadcast', { event: 'play_again_request' }, ({ payload }) => {
 			const { initiator } = payload;
 			playAgainInitiator = initiator;
@@ -66,7 +75,13 @@
 		});
 
 	onMount(async () => {
-		gameUrl = `${window.location.origin}/game/${gameCode}?host=false`;
+		const urlParams = new URLSearchParams(window.location.search);
+		urlParams.set('host', 'false');
+		if (timerDuration > 0) {
+			urlParams.set('timer', timerDuration.toString());
+		}
+		gameUrl = `${window.location.origin}/game/${gameCode}?${urlParams.toString()}`;
+
 		await subscription.subscribe(async (status) => {
 			if (status === 'SUBSCRIBED') {
 				const urlParams = new URLSearchParams(window.location.search);
@@ -89,6 +104,11 @@
 			if (timeLeft <= 0) {
 				clearInterval(timerInterval);
 				if (!winner) {
+					subscription.send({
+						type: 'broadcast',
+						event: 'turn_timeout',
+						payload: {}
+					});
 					currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
 					timeLeft = timerDuration;
 					startTimer();

@@ -11,10 +11,11 @@
 	function createGame() {
 		const code = generateGameCode();
 		const searchParams = new URLSearchParams();
+		searchParams.set('host', 'true');
 		if (timerEnabled) {
 			searchParams.set('timer', timerDuration.toString());
 		}
-		window.location.href = `/game/${code}?host=true`;
+		window.location.href = `/game/${code}?${searchParams.toString()}`;
 	}
 
 	function joinGame() {
