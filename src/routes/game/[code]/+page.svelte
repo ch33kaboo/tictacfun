@@ -4,7 +4,7 @@
 	import { supabase } from '$lib/supabase';
 
 	const gameCode = page.params.code;
-	const timerDuration = parseInt(page.url.searchParams.get('timer') || '0', 10);
+	let timerDuration = $state(parseInt(page.url.searchParams.get('timer') || '0', 10));
 	let isWaiting = $state(true);
 	let isHost = $state(false);
 	let gameStarted = $state(false);
@@ -20,7 +20,6 @@
 	let bothPlayersReady = $state(false);
 
 	onMount(() => {
-		// Get the URL parameters
 		const urlParams = new URLSearchParams(window.location.search);
 		isHost = urlParams.get('host') === 'true';
 	});
@@ -32,7 +31,11 @@
 			const players = Object.keys(presenceState).length;
 			isWaiting = players < 2;
 		})
-		.on('broadcast', { event: 'game_start' }, () => {
+		.on('broadcast', { event: 'game_start' }, ({ payload }) => {
+			if (payload.timerDuration !== undefined) {
+				timerDuration = payload.timerDuration;
+				timeLeft = timerDuration;
+			}
 			gameStarted = true;
 			if (timerDuration > 0) startTimer();
 		})
@@ -77,9 +80,6 @@
 	onMount(async () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		urlParams.set('host', 'false');
-		if (timerDuration > 0) {
-			urlParams.set('timer', timerDuration.toString());
-		}
 		gameUrl = `${window.location.origin}/game/${gameCode}?${urlParams.toString()}`;
 
 		await subscription.subscribe(async (status) => {
@@ -129,7 +129,9 @@
 		subscription.send({
 			type: 'broadcast',
 			event: 'game_start',
-			payload: {}
+			payload: {
+				timerDuration
+			}
 		});
 		gameStarted = true;
 		if (timerDuration > 0) startTimer();
