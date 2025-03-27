@@ -118,7 +118,14 @@
 	}
 
 	async function copyGameUrl() {
-		await navigator.clipboard.writeText(gameUrl);
+		try {
+			const url = new URL(gameUrl);
+			url.searchParams.delete('timer');
+			await navigator.clipboard.writeText(url.toString());
+		} catch {
+			await navigator.clipboard.writeText(gameUrl);
+		}
+
 		showCopiedMessage = true;
 		setTimeout(() => {
 			showCopiedMessage = false;
@@ -236,7 +243,17 @@
 				<div class="join">
 					<input
 						type="text"
-						value={gameUrl}
+						value={gameUrl
+							? (() => {
+									try {
+										const url = new URL(gameUrl);
+										url.searchParams.delete('timer');
+										return url.toString();
+									} catch {
+										return gameUrl; // Fallback in case of an invalid URL
+									}
+								})()
+							: ''}
 						readonly
 						class="input input-bordered join-item w-full sm:w-96"
 					/>
