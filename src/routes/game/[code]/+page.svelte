@@ -292,7 +292,7 @@
 			{/if}
 		</div>
 	{:else}
-		<div class="text-center">
+		<div class="flex flex-col items-center text-center">
 			{#if winner && !showingLastMove}
 				<div class="mb-8">
 					<h2 class="text-2xl font-bold">
