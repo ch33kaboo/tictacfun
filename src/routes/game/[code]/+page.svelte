@@ -19,6 +19,7 @@
 	let playAgainInitiator: 'host' | 'guest' | null = $state(null);
 	let bothPlayersReady = $state(false);
 	let showingLastMove = $state(false);
+	let lastPlayedIndex = $state<number | null>(null);
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -44,6 +45,15 @@
 			const { index, player } = payload;
 			board[index] = player;
 			currentPlayer = player === 'X' ? 'O' : 'X';
+
+			// Set the last played index to trigger animation
+			if (currentPlayer === (isHost ? 'X' : 'O')) {
+				lastPlayedIndex = index;
+				setTimeout(() => {
+					lastPlayedIndex = null;
+				}, 700);
+			}
+
 			if (timerDuration > 0) {
 				clearInterval(timerInterval);
 				timeLeft = timerDuration;
@@ -230,6 +240,7 @@
 		playAgainInitiator = null;
 		bothPlayersReady = false;
 		showingLastMove = false;
+		lastPlayedIndex = null;
 		if (timerInterval) clearInterval(timerInterval);
 		if (timerDuration > 0) timeLeft = timerDuration;
 	}
@@ -332,9 +343,11 @@
 			<div class="grid grid-cols-3 gap-4">
 				{#each board as cell, index}
 					<button
-						class="btn btn-lg aspect-square text-2xl font-bold {cell
+						class="btn btn-lg aspect-square text-2xl font-bold transition-all duration-100 {cell
 							? 'btn-disabled'
-							: 'btn-outline'}"
+							: 'btn-outline'} {lastPlayedIndex === index
+							? 'border-accent shadow-accent border-2 shadow-inner'
+							: ''}"
 						onclick={() => makeMove(index)}
 						disabled={!!cell ||
 							!!winner ||
