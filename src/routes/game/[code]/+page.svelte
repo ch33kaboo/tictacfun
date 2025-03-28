@@ -18,6 +18,7 @@
 	let playAgainRequested = $state(false);
 	let playAgainInitiator: 'host' | 'guest' | null = $state(null);
 	let bothPlayersReady = $state(false);
+	let showingLastMove = $state(false);
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -175,17 +176,26 @@
 			[2, 4, 6] // Diagonals
 		];
 
+		let gameResult: string | null = null;
+
 		for (const [a, b, c] of lines) {
 			if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-				winner = board[a];
-				if (timerInterval) clearInterval(timerInterval);
-				return;
+				gameResult = board[a];
+				break;
 			}
 		}
 
-		if (board.every((cell) => cell !== '')) {
-			winner = 'draw';
+		if (!gameResult && board.every((cell) => cell !== '')) {
+			gameResult = 'draw';
+		}
+
+		if (gameResult) {
 			if (timerInterval) clearInterval(timerInterval);
+			showingLastMove = true;
+			setTimeout(() => {
+				showingLastMove = false;
+				winner = gameResult;
+			}, 2000); // Show last move for 2 seconds before displaying the result
 		}
 	}
 
@@ -219,6 +229,7 @@
 		playAgainRequested = false;
 		playAgainInitiator = null;
 		bothPlayersReady = false;
+		showingLastMove = false;
 		if (timerInterval) clearInterval(timerInterval);
 		if (timerDuration > 0) timeLeft = timerDuration;
 	}
@@ -282,7 +293,7 @@
 		</div>
 	{:else}
 		<div class="text-center">
-			{#if winner}
+			{#if winner && !showingLastMove}
 				<div class="mb-8">
 					<h2 class="text-2xl font-bold">
 						{winner === 'draw' ? "It's a draw!" : `Player ${winner} wins!`}
@@ -300,9 +311,13 @@
 				</div>
 			{:else}
 				<h2 class="mb-4 text-2xl font-bold">
-					{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
+					{#if showingLastMove}
+						Game Over!
+					{:else}
+						{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
+					{/if}
 				</h2>
-				{#if timerDuration > 0}
+				{#if timerDuration > 0 && !showingLastMove}
 					<div class="mb-4">
 						<div
 							class="radial-progress {timeLeft <= 3 ? 'text-error' : ''}"
@@ -314,21 +329,22 @@
 				{/if}
 			{/if}
 
-			{#if !winner || bothPlayersReady}
-				<div class="grid grid-cols-3 gap-4">
-					{#each board as cell, index}
-						<button
-							class="btn btn-lg aspect-square text-2xl font-bold {cell
-								? 'btn-disabled'
-								: 'btn-outline'}"
-							onclick={() => makeMove(index)}
-							disabled={!!cell || !!winner || currentPlayer !== (isHost ? 'X' : 'O')}
-						>
-							{cell}
-						</button>
-					{/each}
-				</div>
-			{/if}
+			<div class="grid grid-cols-3 gap-4">
+				{#each board as cell, index}
+					<button
+						class="btn btn-lg aspect-square text-2xl font-bold {cell
+							? 'btn-disabled'
+							: 'btn-outline'}"
+						onclick={() => makeMove(index)}
+						disabled={!!cell ||
+							!!winner ||
+							currentPlayer !== (isHost ? 'X' : 'O') ||
+							showingLastMove}
+					>
+						{cell}
+					</button>
+				{/each}
+			</div>
 		</div>
 	{/if}
 </div>
