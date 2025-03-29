@@ -20,6 +20,7 @@
 	let bothPlayersReady = $state(false);
 	let showingLastMove = $state(false);
 	let lastPlayedIndex = $state<number | null>(null);
+	let winningCombination = $state<number[] | null>(null);
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -187,10 +188,13 @@
 		];
 
 		let gameResult: string | null = null;
+		winningCombination = null;
 
-		for (const [a, b, c] of lines) {
+		for (const line of lines) {
+			const [a, b, c] = line;
 			if (board[a] && board[a] === board[b] && board[a] === board[c]) {
 				gameResult = board[a];
+				winningCombination = line;
 				break;
 			}
 		}
@@ -207,6 +211,18 @@
 				winner = gameResult;
 			}, 2000); // Show last move for 2 seconds before displaying the result
 		}
+	}
+
+	function getCellClass(index: number) {
+		if (!winningCombination || !winner) return '';
+		if (!winningCombination.includes(index)) return '';
+
+		const playerWon = (isHost && winner === 'X') || (!isHost && winner === 'O');
+		return playerWon ? 'btn-primary' : 'btn-neutral';
+	}
+
+	function isWinningCell(index: number) {
+		return winningCombination?.includes(index) || false;
 	}
 
 	function getGameResultMessage() {
@@ -247,6 +263,7 @@
 		bothPlayersReady = false;
 		showingLastMove = false;
 		lastPlayedIndex = null;
+		winningCombination = null;
 		if (timerInterval) clearInterval(timerInterval);
 		if (timerDuration > 0) timeLeft = timerDuration;
 	}
@@ -349,16 +366,17 @@
 			<div class="grid grid-cols-3 gap-4">
 				{#each board as cell, index}
 					<button
-						class="btn btn-lg aspect-square text-2xl font-bold transition-all duration-100 {cell
+						class="btn btn-lg aspect-square text-2xl font-bold transition-all duration-100 {cell &&
+						!isWinningCell(index)
 							? 'btn-disabled'
-							: 'btn-outline'} {lastPlayedIndex === index
-							? 'border-accent shadow-accent border-2 shadow-inner'
-							: ''}"
+							: !isWinningCell(index)
+								? 'btn-outline'
+								: 'cursor-auto'} {lastPlayedIndex === index
+							? 'border-primary shadow-primary border-2'
+							: ''} {getCellClass(index)}"
 						onclick={() => makeMove(index)}
-						disabled={!!cell ||
-							!!winner ||
-							currentPlayer !== (isHost ? 'X' : 'O') ||
-							showingLastMove}
+						disabled={!isWinningCell(index) &&
+							(!!cell || !!winner || currentPlayer !== (isHost ? 'X' : 'O') || showingLastMove)}
 					>
 						{cell}
 					</button>
