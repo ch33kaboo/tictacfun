@@ -363,17 +363,21 @@
 				{/if}
 			{/if}
 
-			<div class="grid grid-cols-3 gap-4">
+			<div class="grid grid-cols-3 gap-1">
 				{#each board as cell, index}
 					<button
-						class="btn btn-lg aspect-square text-2xl font-bold transition-all duration-100 {cell &&
-						!isWinningCell(index)
+						class="btn btn-lg aspect-square text-2xl font-bold transition-all duration-100
+							{cell && !isWinningCell(index)
 							? 'btn-disabled'
 							: !isWinningCell(index)
 								? 'btn-outline'
-								: 'cursor-auto'} {lastPlayedIndex === index
-							? 'border-primary shadow-primary border-2'
-							: ''} {getCellClass(index)}"
+								: 'cursor-auto'} 
+							{lastPlayedIndex === index ? 'border-primary shadow-primary border-2' : ''} 
+							{getCellClass(index)} rounded-none
+							{index === 0 ? 'rounded-tl-2xl' : ''} 
+							{index === 2 ? 'rounded-tr-2xl' : ''} 
+							{index === 6 ? 'rounded-bl-2xl' : ''} 
+							{index === 8 ? 'rounded-br-2xl' : ''}"
 						onclick={() => makeMove(index)}
 						disabled={!isWinningCell(index) &&
 							(!!cell || !!winner || currentPlayer !== (isHost ? 'X' : 'O') || showingLastMove)}
