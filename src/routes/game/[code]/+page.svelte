@@ -209,6 +209,12 @@
 		}
 	}
 
+	function getGameResultMessage() {
+		if (winner === 'draw') return "It's a draw! 🤝";
+		const playerWon = (isHost && winner === 'X') || (!isHost && winner === 'O');
+		return playerWon ? 'You won! 🎉' : 'You lost 😢';
+	}
+
 	function requestPlayAgain() {
 		playAgainRequested = true;
 		playAgainInitiator = isHost ? 'host' : 'guest';
@@ -307,7 +313,7 @@
 			{#if winner && !showingLastMove}
 				<div class="mb-8">
 					<h2 class="text-2xl font-bold">
-						{winner === 'draw' ? "It's a draw!" : `Player ${winner} wins!`}
+						{getGameResultMessage()}
 					</h2>
 					{#if !playAgainRequested}
 						<button class="btn btn-primary mt-4" onclick={requestPlayAgain}>Play Again</button>
