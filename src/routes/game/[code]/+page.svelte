@@ -377,15 +377,23 @@
 
 			{#if winner && !showingLastMove}
 				{#if !playAgainRequested}
-					<button class="btn btn-primary mt-4" onclick={requestPlayAgain}>Play Again</button>
+					<div class="min-h-24">
+						<button class="btn btn-primary mt-4" onclick={requestPlayAgain}>Play Again</button>
+					</div>
 				{:else if !bothPlayersReady}
 					{#if shouldShowPlayAgainMessage()}
-						<p class="mt-4 text-lg">We sent an invitation to your friend to play again</p>
+						<div class="min-h-24">
+							<p class="mt-4 text-lg">We sent an invitation to your friend to play again</p>
+						</div>
 					{:else if shouldShowAcceptMessage()}
-						<p class="mt-4 text-lg">Your friend wants to play again</p>
-						<button class="btn btn-primary mt-2" onclick={requestStartGame}>Accept</button>
+						<div class="min-h-24">
+							<p class="mt-4 text-lg">Your friend wants to play again</p>
+							<button class="btn btn-primary mt-2" onclick={requestStartGame}>Accept</button>
+						</div>
 					{/if}
 				{/if}
+			{:else}
+				<div class="h-24 w-1"></div>
 			{/if}
 		</div>
 	{/if}
