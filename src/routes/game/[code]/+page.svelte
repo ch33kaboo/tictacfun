@@ -329,39 +329,26 @@
 	{:else}
 		<div class="flex flex-col items-center text-center">
 			{#if winner && !showingLastMove}
-				<div class="mb-8">
-					<h2 class="text-2xl font-bold">
-						{getGameResultMessage()}
-					</h2>
-					{#if !playAgainRequested}
-						<button class="btn btn-primary mt-4" onclick={requestPlayAgain}>Play Again</button>
-					{:else if !bothPlayersReady}
-						{#if shouldShowPlayAgainMessage()}
-							<p class="mt-4 text-lg">We sent an invitation to your friend to play again</p>
-						{:else if shouldShowAcceptMessage()}
-							<p class="mt-4 text-lg">Your friend wants to play again</p>
-							<button class="btn btn-primary mt-2" onclick={requestStartGame}>Accept</button>
-						{/if}
-					{/if}
-				</div>
-			{:else}
 				<h2 class="mb-4 text-2xl font-bold">
-					{#if showingLastMove}
-						Game Over!
-					{:else}
-						{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
-					{/if}
+					{getGameResultMessage()}
 				</h2>
-				{#if timerDuration > 0 && !showingLastMove}
-					<div class="mb-4">
-						<div
-							class="radial-progress {timeLeft <= 3 ? 'text-error' : ''}"
-							style="--value:{(timeLeft / timerDuration) * 100}; --size:4rem;"
-						>
-							{timeLeft}s
-						</div>
+			{/if}
+			{#if showingLastMove}
+				<h2 class="mb-4 text-2xl font-bold">Game Over!</h2>
+			{:else if !winner}
+				<h2 class="mb-4 text-2xl font-bold">
+					{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
+				</h2>
+			{/if}
+			{#if timerDuration > 0 && !showingLastMove && !winner}
+				<div class="mb-4">
+					<div
+						class="radial-progress {timeLeft <= 3 ? 'text-error' : ''}"
+						style="--value:{(timeLeft / timerDuration) * 100}; --size:4rem;"
+					>
+						{timeLeft}s
 					</div>
-				{/if}
+				</div>
 			{/if}
 
 			<div class="grid grid-cols-3 gap-1">
@@ -387,6 +374,19 @@
 					</button>
 				{/each}
 			</div>
+
+			{#if winner && !showingLastMove}
+				{#if !playAgainRequested}
+					<button class="btn btn-primary mt-4" onclick={requestPlayAgain}>Play Again</button>
+				{:else if !bothPlayersReady}
+					{#if shouldShowPlayAgainMessage()}
+						<p class="mt-4 text-lg">We sent an invitation to your friend to play again</p>
+					{:else if shouldShowAcceptMessage()}
+						<p class="mt-4 text-lg">Your friend wants to play again</p>
+						<button class="btn btn-primary mt-2" onclick={requestStartGame}>Accept</button>
+					{/if}
+				{/if}
+			{/if}
 		</div>
 	{/if}
 </div>
