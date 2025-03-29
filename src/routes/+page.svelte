@@ -3,6 +3,7 @@
 	let gameCode = $state('');
 	let timerEnabled = $state(false);
 	let timerDuration = $state(10);
+	import { goto } from '$app/navigation';
 
 	function generateGameCode() {
 		return Math.random().toString().substring(2, 8);
@@ -15,12 +16,12 @@
 		if (timerEnabled) {
 			searchParams.set('timer', timerDuration.toString());
 		}
-		window.location.href = `/game/${code}?${searchParams.toString()}`;
+		goto(`/game/${code}?${searchParams.toString()}`);
 	}
 
 	function joinGame() {
 		if (gameCode.length === 6) {
-			window.location.href = `/game/${gameCode}?host=false`;
+			goto(`/game/${gameCode}?host=false`);
 		}
 	}
 </script>
