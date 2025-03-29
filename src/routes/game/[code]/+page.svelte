@@ -280,7 +280,7 @@
 </script>
 
 <div class="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-	{#if isWaiting}
+	{#if isWaiting && isHost}
 		<div class="text-center">
 			<h2 class="mb-4 text-2xl font-bold">Game Code: {gameCode}</h2>
 			<div class="mb-8">
@@ -314,13 +314,14 @@
 		</div>
 	{:else if !gameStarted}
 		<div class="text-center">
-			<h2 class="mb-4 text-2xl font-bold">Friend joined!</h2>
 			{#if isHost}
+				<h2 class="mb-4 text-2xl font-bold">Friend joined!</h2>
 				<button class="btn btn-primary" onclick={startGame}>Start Game</button>
 				{#if timerDuration > 0}
 					<p class="mt-2 text-sm">Timer set to {timerDuration} seconds per turn</p>
 				{/if}
 			{:else}
+				<h2 class="mb-4 text-2xl font-bold">Ready to Play!</h2>
 				<p>Waiting for host to start the game...</p>
 				<div class="loading loading-dots loading-lg mt-4"></div>
 			{/if}
