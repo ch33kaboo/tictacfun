@@ -5,6 +5,7 @@
 
 	const gameCode = page.params.code;
 	let timerDuration = $state(parseInt(page.url.searchParams.get('timer') || '0', 10));
+	let timerStart = $state(parseInt(page.url.searchParams.get('timer') || '0', 10));
 	let isWaiting = $state(true);
 	let isHost = $state(false);
 	let gameStarted = $state(false);
@@ -109,12 +110,16 @@
 	});
 
 	function startTimer() {
-		if (timerInterval) clearInterval(timerInterval);
-		timeLeft = timerDuration;
-		timerInterval = setInterval(() => {
-			timeLeft--;
-			if (timeLeft <= 0) {
-				clearInterval(timerInterval);
+		if (timerInterval) cancelAnimationFrame(timerInterval);
+		timerStart = performance.now();
+		function updateTimer() {
+			let elapsed = (performance.now() - timerStart) / 1000;
+			timeLeft = Math.max(0, timerDuration - elapsed);
+
+			if (timeLeft > 0) {
+				timerInterval = requestAnimationFrame(updateTimer);
+			} else {
+				// Timer ended
 				if (!winner) {
 					subscription.send({
 						type: 'broadcast',
@@ -122,13 +127,12 @@
 						payload: {}
 					});
 					currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-					timeLeft = timerDuration;
 					startTimer();
 				}
 			}
-		}, 1000);
+		}
+		timerInterval = requestAnimationFrame(updateTimer);
 	}
-
 	async function copyGameUrl() {
 		try {
 			const url = new URL(gameUrl);
@@ -343,10 +347,10 @@
 			{#if timerDuration > 0 && !showingLastMove && !winner}
 				<div class="mb-4">
 					<div
-						class="radial-progress {timeLeft <= 3 ? 'text-error' : ''}"
-						style="--value:{(timeLeft / timerDuration) * 100}; --size:4rem;"
+						class="radial-progress {timeLeft <= 3 ? 'text-error' : ''} text-sm"
+						style="--value:{(timeLeft / timerDuration) * 100}; --size:3rem;"
 					>
-						{timeLeft}s
+						{Math.ceil(timeLeft)}s
 					</div>
 				</div>
 			{/if}
