@@ -333,25 +333,29 @@
 	{:else}
 		<div class="flex flex-col items-center text-center">
 			{#if winner && !showingLastMove}
-				<h2 class="mb-4 text-2xl font-bold">
+				<h2 class="mb-4 min-h-11 text-2xl font-bold">
 					{getGameResultMessage()}
 				</h2>
 			{/if}
-			{#if showingLastMove}
-				<h2 class="mb-4 text-2xl font-bold">Game Over!</h2>
-			{:else if !winner}
-				<h2 class="mb-4 text-2xl font-bold">
-					{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
-				</h2>
-			{/if}
-			{#if timerDuration > 0 && !showingLastMove && !winner}
-				<div class="mb-4">
-					<div
-						class="radial-progress {timeLeft <= 3 ? 'text-error' : ''} text-sm"
-						style="--value:{(timeLeft / timerDuration) * 100}; --size:3rem;"
-					>
-						{Math.ceil(timeLeft)}s
-					</div>
+			{#if !(winner && !showingLastMove)}
+				<div class="flex flex-row items-center justify-center gap-4">
+					{#if showingLastMove}
+						<h2 class="mb-4 min-h-11 text-2xl font-bold">Game Over!</h2>
+					{:else if !winner}
+						<h2 class="mb-4 min-h-11 text-2xl font-bold">
+							{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
+						</h2>
+					{/if}
+					{#if timerDuration > 0 && !showingLastMove && !winner}
+						<div class="mb-4">
+							<div
+								class="radial-progress {timeLeft <= 3 ? 'text-error' : ''} text-sm"
+								style="--value:{(timeLeft / timerDuration) * 100}; --size:3rem;"
+							>
+								{Math.ceil(timeLeft)}s
+							</div>
+						</div>
+					{/if}
 				</div>
 			{/if}
 
