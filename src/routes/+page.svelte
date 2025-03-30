@@ -3,6 +3,7 @@
 	let gameCode = $state('');
 	let timerEnabled = $state(false);
 	let timerDuration = $state(10);
+	let selectedGame = $state('classic');
 	import { goto } from '$app/navigation';
 
 	function generateGameCode() {
@@ -13,6 +14,7 @@
 		const code = generateGameCode();
 		const searchParams = new URLSearchParams();
 		searchParams.set('host', 'true');
+		searchParams.set('game', selectedGame);
 		if (timerEnabled) {
 			searchParams.set('timer', timerDuration.toString());
 		}
@@ -73,17 +75,32 @@
 						<h2 class="card-title">Classic Tic-Tac-Toe</h2>
 						<p>Play the traditional 3x3 game with a friend!</p>
 						<div class="card-actions justify-end">
-							<button class="btn btn-primary" onclick={createGame}>Create Game</button>
+							<button
+								class="btn btn-primary"
+								onclick={() => {
+									selectedGame = 'classic';
+									createGame();
+								}}>Create Game</button
+							>
 						</div>
 					</div>
 				</div>
 
 				<div class="card bg-base-100 shadow-md transition-transform hover:scale-105">
 					<div class="card-body">
-						<h2 class="card-title">Classic Tic-Tac-Toe</h2>
-						<p>Play the traditional 3x3 game with a friend!</p>
+						<h2 class="card-title">Super Tic-Tac-Toe</h2>
+						<p>
+							Play on a 3×3 grid of smaller boards. Each move determines where your opponent must
+							play next!
+						</p>
 						<div class="card-actions justify-end">
-							<button class="btn btn-primary" onclick={createGame}>Create Game</button>
+							<button
+								class="btn btn-primary"
+								onclick={() => {
+									selectedGame = 'super';
+									createGame();
+								}}>Create Game</button
+							>
 						</div>
 					</div>
 				</div>
