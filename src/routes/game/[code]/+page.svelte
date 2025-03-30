@@ -342,9 +342,13 @@
 					{#if showingLastMove}
 						<h2 class="mb-4 min-h-11 text-2xl font-bold">Game Over!</h2>
 					{:else if !winner}
-						<h2 class="mb-4 min-h-11 text-2xl font-bold">
-							{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
-						</h2>
+						<div
+							class="mb-4 flex min-h-11 min-w-[200px] items-center justify-center text-2xl font-bold"
+						>
+							<h2>
+								{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
+							</h2>
+						</div>
 					{/if}
 					{#if timerDuration > 0 && !showingLastMove && !winner}
 						<div class="mb-4">
