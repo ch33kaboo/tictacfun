@@ -19,9 +19,13 @@ Invite your friends and play the classic version or try out new twists!
    ```
 2. Install dependencies:
    ```sh
-   bun install
+   npm install
    ```
-3. Run the development server:
+3. Rename the environment variables file:
    ```sh
-   bun run dev --open
+   cp .env.example .env
+   ```
+4. Run the development server:
+   ```sh
+   npm run dev
    ```
