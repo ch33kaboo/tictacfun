@@ -133,6 +133,7 @@
 		}
 		timerInterval = requestAnimationFrame(updateTimer);
 	}
+
 	async function copyGameUrl() {
 		try {
 			const url = new URL(gameUrl);
