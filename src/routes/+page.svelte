@@ -7,7 +7,9 @@
 	import { goto } from '$app/navigation';
 
 	function generateGameCode() {
-		return Math.random().toString().substring(2, 8);
+		const gameTypeDigit = selectedGame === 'classic' ? '0' : '1';
+		const randomDigits = Math.random().toString().substring(2, 7);
+		return gameTypeDigit + randomDigits;
 	}
 
 	function createGame() {
@@ -22,7 +24,8 @@
 
 	function joinGame() {
 		if (gameCode.length === 6) {
-			goto(`/classic/${gameCode}?host=false`);
+			const gameType = gameCode[0] === '0' ? 'classic' : 'super';
+			goto(`/${gameType}/${gameCode}?host=false`);
 		}
 	}
 </script>
