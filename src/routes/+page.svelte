@@ -153,7 +153,7 @@
 			<div class="flex flex-col items-center gap-4">
 				<div class="form-control w-full max-w-md">
 					<label class="label" for="gameCode">
-						<span class="label-text">Enter 6-digit game code</span>
+						<span class="label-text mb-2">Enter 6-digit game code</span>
 					</label>
 					<input
 						type="text"
@@ -163,13 +163,15 @@
 						maxlength="6"
 						bind:value={gameCode}
 					/>
+					{#if errorMessage}
+						<div class="text-error mt-2">{errorMessage}</div>
+					{:else}
+						<p class="mt-2 text-gray-500">Ask your friend for the game code to join their game.</p>
+					{/if}
 				</div>
 				<button class="btn btn-primary" onclick={joinGame} disabled={gameCode.length !== 6}>
 					Join Game
 				</button>
-				{#if errorMessage}
-					<div class="text-error mt-2">{errorMessage}</div>
-				{/if}
 			</div>
 		{/if}
 	</div>
