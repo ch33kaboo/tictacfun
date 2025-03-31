@@ -162,6 +162,7 @@
 						class="input input-bordered w-full"
 						maxlength="6"
 						bind:value={gameCode}
+						onkeydown={(e) => e.key === 'Enter' && gameCode.length === 6 && joinGame()}
 					/>
 					{#if errorMessage}
 						<div class="text-error mt-2">{errorMessage}</div>
