@@ -5,6 +5,8 @@
 	let timerDuration = $state(10);
 	let selectedGame = $state('classic');
 	import { goto } from '$app/navigation';
+	import { supabase } from '$lib/supabase';
+	let errorMessage = $state('');
 
 	function generateGameCode() {
 		const gameTypeDigit = selectedGame === 'classic' ? '0' : '1';
@@ -22,10 +24,50 @@
 		goto(`/${selectedGame}/${code}?${searchParams.toString()}`);
 	}
 
-	function joinGame() {
+	async function joinGame() {
 		if (gameCode.length === 6) {
 			const gameType = gameCode[0] === '0' ? 'classic' : 'super';
-			goto(`/${gameType}/${gameCode}?host=false`);
+			errorMessage = ''; // Clear any previous error message
+
+			// Create a temporary channel to check if the room exists
+			const channel = supabase.channel(`game:${gameCode}`);
+
+			try {
+				// Subscribe to the channel and wait for presence sync
+				await new Promise<void>((resolve, reject) => {
+					channel
+						.on('presence', { event: 'sync' }, () => {
+							// Get the presence state after sync
+							const presenceState = channel.presenceState();
+							const players = Object.keys(presenceState).length;
+
+							if (players === 0) {
+								// No players in the room, show error
+								errorMessage = 'This game room does not exist or has ended.';
+							} else if (players >= 2) {
+								// Room is full
+								errorMessage = 'This game room is full.';
+							} else {
+								// Room exists and has space, redirect
+								goto(`/${gameType}/${gameCode}?host=false`);
+							}
+
+							// Unsubscribe after checking
+							channel.unsubscribe();
+							resolve();
+						})
+						.subscribe(async (status) => {
+							if (status === 'SUBSCRIBED') {
+								// Track presence to trigger sync
+								await channel.track({ user: 'checking' });
+							} else {
+								reject(new Error('Failed to subscribe to channel'));
+							}
+						});
+				});
+			} catch (error) {
+				console.log('Failed to join game. Please try again.');
+			}
 		}
 	}
 </script>
@@ -125,6 +167,9 @@
 				<button class="btn btn-primary" onclick={joinGame} disabled={gameCode.length !== 6}>
 					Join Game
 				</button>
+				{#if errorMessage}
+					<div class="text-error mt-2">{errorMessage}</div>
+				{/if}
 			</div>
 		{/if}
 	</div>
