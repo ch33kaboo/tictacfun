@@ -93,7 +93,7 @@
 	onMount(async () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		urlParams.set('host', 'false');
-		gameUrl = `${window.location.origin}/game/${gameCode}?${urlParams.toString()}`;
+		gameUrl = `${window.location.origin}/classic/${gameCode}?${urlParams.toString()}`;
 
 		await subscription.subscribe(async (status) => {
 			if (status === 'SUBSCRIBED') {

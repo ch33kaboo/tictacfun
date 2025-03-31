@@ -18,12 +18,12 @@
 		if (timerEnabled) {
 			searchParams.set('timer', timerDuration.toString());
 		}
-		goto(`/game/${code}?${searchParams.toString()}`);
+		goto(`/classic/${code}?${searchParams.toString()}`);
 	}
 
 	function joinGame() {
 		if (gameCode.length === 6) {
-			goto(`/game/${gameCode}?host=false`);
+			goto(`/classic/${gameCode}?host=false`);
 		}
 	}
 </script>
