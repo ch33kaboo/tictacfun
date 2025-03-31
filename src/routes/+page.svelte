@@ -14,11 +14,10 @@
 		const code = generateGameCode();
 		const searchParams = new URLSearchParams();
 		searchParams.set('host', 'true');
-		searchParams.set('game', selectedGame);
 		if (timerEnabled) {
 			searchParams.set('timer', timerDuration.toString());
 		}
-		goto(`/classic/${code}?${searchParams.toString()}`);
+		goto(`/${selectedGame}/${code}?${searchParams.toString()}`);
 	}
 
 	function joinGame() {
