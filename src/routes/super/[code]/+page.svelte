@@ -11,6 +11,8 @@
 	let gameStarted = $state(false);
 	let gameUrl = $state('');
 	let showCopiedMessage = $state(false);
+	let board = $state(Array(81).fill('')); // 9x9 grid for super tic-tac-toe
+	let hoveredGridIndex = $state<number | null>(null);
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -125,8 +127,48 @@
 			{/if}
 		</div>
 	{:else}
-		<div class="text-center">
-			<h2 class="text-2xl font-bold">Here is the super tic-tac-toe game</h2>
+		<div class="flex flex-col items-center text-center">
+			<div class="grid grid-cols-3 gap-1">
+				{#each Array(9) as _, outerIndex}
+					<div
+						class="divide-base-300 border-base-300 bg-base-200 grid grid-cols-3 divide-x divide-y rounded-lg border-2 transition-all duration-300
+						{hoveredGridIndex === outerIndex ? 'border-primary shadow-lg' : ''}"
+					>
+						{#each Array(9) as _, innerIndex}
+							{@const index = outerIndex * 9 + innerIndex}
+							<div
+								class="border-base-300 flex items-center justify-center border
+								{innerIndex % 3 === 0 && Math.floor(innerIndex / 3) === 0 ? 'rounded-tl-lg' : ''}
+								{innerIndex % 3 === 0 && Math.floor(innerIndex / 3) === 2 ? 'rounded-bl-lg' : ''}
+								{innerIndex % 3 === 2 && Math.floor(innerIndex / 3) === 0 ? 'rounded-tr-lg' : ''}
+								{innerIndex % 3 === 2 && Math.floor(innerIndex / 3) === 2 ? 'rounded-br-lg' : ''}"
+							>
+								<button
+									class="btn btn-md aspect-square text-2xl font-bold transition-all duration-100
+										{board[index] ? 'btn-disabled' : 'btn-ghost hover:bg-base-300'} 
+										rounded-none
+										{index === 0 ? 'rounded-tl-lg' : ''}
+										{index === 20 ? 'rounded-tr-lg' : ''}
+										{index === 60 ? 'rounded-bl-lg' : ''}
+										{index === 80 ? 'rounded-br-lg' : ''}"
+									onclick={() => {}}
+									disabled={!!board[index]}
+									onmouseenter={() => {
+										if (!board[index]) {
+											hoveredGridIndex = Math.floor(innerIndex / 3) * 3 + (innerIndex % 3);
+										}
+									}}
+									onmouseleave={() => {
+										hoveredGridIndex = null;
+									}}
+								>
+									{board[index]}
+								</button>
+							</div>
+						{/each}
+					</div>
+				{/each}
+			</div>
 		</div>
 	{/if}
 </div>
