@@ -131,13 +131,13 @@
 			<div class="grid grid-cols-3 gap-1">
 				{#each Array(9) as _, outerIndex}
 					<div
-						class="divide-base-300 border-base-300 bg-base-200 grid grid-cols-3 divide-x divide-y rounded-lg border-2 transition-all duration-300
-						{hoveredGridIndex === outerIndex ? 'border-primary shadow-lg' : ''}"
+						class="border-base-content/20 bg-base-200 divide-base-content/20 grid grid-cols-3 divide-x divide-y rounded-lg border-2 transition-all duration-300
+						{hoveredGridIndex === outerIndex ? 'border-primary shadow-primary/40 shadow-lg' : ''}"
 					>
 						{#each Array(9) as _, innerIndex}
 							{@const index = outerIndex * 9 + innerIndex}
 							<div
-								class="border-base-300 flex items-center justify-center border
+								class="border-base-content/20 flex items-center justify-center border
 								{innerIndex % 3 === 0 && Math.floor(innerIndex / 3) === 0 ? 'rounded-tl-lg' : ''}
 								{innerIndex % 3 === 0 && Math.floor(innerIndex / 3) === 2 ? 'rounded-bl-lg' : ''}
 								{innerIndex % 3 === 2 && Math.floor(innerIndex / 3) === 0 ? 'rounded-tr-lg' : ''}
