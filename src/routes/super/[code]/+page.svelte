@@ -128,20 +128,27 @@
 		</div>
 	{:else}
 		<div class="flex flex-col items-center text-center">
-			<div class="grid grid-cols-3 gap-1">
+			<div class="grid grid-cols-3 gap-1.5">
 				{#each Array(9) as _, outerIndex}
 					<div
-						class="border-base-content/20 bg-base-200 divide-base-content/20 grid grid-cols-3 divide-x divide-y rounded-lg border-2 transition-all duration-300
-						{hoveredGridIndex === outerIndex ? 'border-primary shadow-primary/40 shadow-lg' : ''}"
+						class="border-base-content/20 bg-base-200 divide-base-content/20 grid grid-cols-3 divide-x divide-y border-2 transition-all duration-300
+						{hoveredGridIndex === outerIndex
+							? 'border-primary shadow-primary/40 shadow-lg'
+							: ''} {outerIndex === 0 ? 'rounded-tl-xl' : ''}
+						{outerIndex === 2 ? 'rounded-tr-xl' : ''}
+						{outerIndex === 6 ? 'rounded-bl-xl' : ''}
+						{outerIndex === 8 ? 'rounded-br-xl' : ''}"
 					>
 						{#each Array(9) as _, innerIndex}
 							{@const index = outerIndex * 9 + innerIndex}
 							<div
 								class="border-base-content/20 flex items-center justify-center border
-								{innerIndex % 3 === 0 && Math.floor(innerIndex / 3) === 0 ? 'rounded-tl-lg' : ''}
-								{innerIndex % 3 === 0 && Math.floor(innerIndex / 3) === 2 ? 'rounded-bl-lg' : ''}
-								{innerIndex % 3 === 2 && Math.floor(innerIndex / 3) === 0 ? 'rounded-tr-lg' : ''}
-								{innerIndex % 3 === 2 && Math.floor(innerIndex / 3) === 2 ? 'rounded-br-lg' : ''}"
+{index === 0 ? 'rounded-tl-lg' : ''}
+										{index === 20 ? 'rounded-tr-lg' : ''}
+										{index === 60 ? 'rounded-bl-lg' : ''}
+										{index === 80 ? 'rounded-br-lg' : ''}
+								
+								"
 							>
 								<button
 									class="btn btn-md aspect-square text-2xl font-bold transition-all duration-100
