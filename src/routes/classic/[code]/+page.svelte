@@ -22,6 +22,7 @@
 	let showingLastMove = $state(false);
 	let lastPlayedIndex = $state<number | null>(null);
 	let winningCombination = $state<number[] | null>(null);
+	let nextStartingPlayer = $state<'host' | 'guest'>('guest');
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -260,7 +261,8 @@
 
 	function resetGame() {
 		board = Array(9).fill('');
-		currentPlayer = 'X';
+		currentPlayer = nextStartingPlayer === 'host' ? 'X' : 'O';
+		nextStartingPlayer = nextStartingPlayer === 'host' ? 'guest' : 'host';
 		winner = null;
 		gameStarted = true;
 		playAgainRequested = false;
