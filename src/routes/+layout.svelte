@@ -18,7 +18,10 @@
 	}
 </script>
 
-<div class="bg-base-100 min-h-screen" data-theme={theme}>
+<div
+	class="bg-base-100 min-h-screen {theme === 'sunset' ? 'text-gray-200' : ''}"
+	data-theme={theme}
+>
 	<div class="container mx-auto px-4">
 		<div class="navbar bg-base-100">
 			<div class="flex-1">
