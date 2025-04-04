@@ -346,7 +346,7 @@
 		</div>
 	{:else}
 		<div
-			class="border-base-content/50 bg-base-content/10 absolute bottom-0 left-0 rounded-tr-2xl border-t-2 border-r-2 px-4 py-2 shadow-sm"
+			class="border-base-content/50 bg-base-content/10 fixed bottom-0 left-0 rounded-tr-2xl border-t-2 border-r-2 px-4 py-2 shadow-sm"
 		>
 			<p class="text-base font-semibold">
 				You {playerScore} - {opponentScore} Opponent
