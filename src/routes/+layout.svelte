@@ -22,7 +22,13 @@
 	<div class="container mx-auto px-4">
 		<div class="navbar bg-base-100">
 			<div class="flex-1">
-				<a href="/" class="btn btn-ghost text-xl">Tic-Tac-Toe</a>
+				<a href="/" class="btn btn-ghost">
+					<img
+						src={theme === 'cmyk' ? '/tictacfun-logo-black.png' : '/tictacfun-logo-white.png'}
+						alt="TicTacFun Logo"
+						class="h-8"
+					/>
+				</a>
 			</div>
 			<div class="flex-none">
 				<button class="btn btn-circle btn-ghost" onclick={toggleTheme}>
