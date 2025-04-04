@@ -13,3 +13,11 @@
 	width: 4rem;
 	font-size: 2rem;
 }
+
+@font-face {
+	font-family: 'milkyway';
+	src: url('/fonts/Milkyway.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}

@@ -73,7 +73,9 @@
 </script>
 
 <main class="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-8">
-	<h1 class="mb-8 text-center text-4xl font-bold">Invite your friends and play Tic-Tac-Toe now!</h1>
+	<h1 class="mb-8 text-center text-4xl" style="font-family: 'milkyway', sans-serif;">
+		Invite your friends and play Tic-Tac-Toe now
+	</h1>
 
 	<div class="bg-base-200 w-full max-w-2xl rounded-lg p-6 shadow-xl">
 		<div class="tabs tabs-boxed mb-6">
