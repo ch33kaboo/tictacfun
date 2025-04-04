@@ -23,6 +23,8 @@
 	let lastPlayedIndex = $state<number | null>(null);
 	let winningCombination = $state<number[] | null>(null);
 	let nextStartingPlayer = $state<'host' | 'guest'>('guest');
+	let playerScore = $state(0);
+	let opponentScore = $state(0);
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -215,6 +217,15 @@
 			setTimeout(() => {
 				showingLastMove = false;
 				winner = gameResult;
+				// Update scores when there's a winner (not a draw)
+				if (gameResult !== 'draw') {
+					const playerWon = (isHost && gameResult === 'X') || (!isHost && gameResult === 'O');
+					if (playerWon) {
+						playerScore++;
+					} else {
+						opponentScore++;
+					}
+				}
 			}, 2000); // Show last move for 2 seconds before displaying the result
 		}
 	}
@@ -334,6 +345,13 @@
 			{/if}
 		</div>
 	{:else}
+		<div
+			class="border-base-content/50 bg-base-content/10 absolute bottom-0 left-0 rounded-tr-2xl border-t-2 border-r-2 px-4 py-2 shadow-sm"
+		>
+			<p class="text-base font-semibold">
+				You {playerScore} - {opponentScore} Opponent
+			</p>
+		</div>
 		<div class="flex flex-col items-center text-center">
 			{#if winner && !showingLastMove}
 				<h2 class="mb-4 min-h-11 text-2xl font-bold">
