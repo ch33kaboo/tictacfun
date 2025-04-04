@@ -453,7 +453,7 @@
 								"
 							>
 								<button
-									class="btn btn-md aspect-square h-12 min-h-0 w-12 text-2xl font-bold transition-all duration-100
+									class="btn btn-md aspect-square h-[38px] min-h-0 w-[38px] text-2xl font-bold transition-all duration-100
 										{board[index] ? 'btn-disabled' : 'btn-ghost hover:bg-base-300'} 
 										{lastPlayedIndex === index ? 'border-primary shadow-primary border-2' : ''}
 										{getCellClass(index)}
