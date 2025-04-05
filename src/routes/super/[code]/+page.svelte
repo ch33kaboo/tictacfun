@@ -449,7 +449,9 @@
 					<div
 						class="border-base-content/20 bg-base-200 divide-base-content/20 grid grid-cols-3 divide-x divide-y border-2 transition-all duration-300
 						{hoveredGridIndex === outerIndex ? 'border-primary shadow-primary/40 bg-base-300 shadow-lg' : ''} 
-						{currentPlayer === (isHost ? 'X' : 'O') &&
+						{!showingLastMove &&
+						!winner &&
+						currentPlayer === (isHost ? 'X' : 'O') &&
 						((activeGrid === null && completedGrids[outerIndex] === '') ||
 							(activeGrid !== null &&
 								completedGrids[activeGrid] !== '' &&
