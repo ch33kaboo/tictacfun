@@ -468,7 +468,7 @@
 					>
 						{#if completedGrids[outerIndex]}
 							<div
-								class="col-span-3 row-span-3 flex h-full w-full items-center justify-center text-5xl font-bold select-none"
+								class="col-span-3 row-span-3 flex aspect-square h-full w-full items-center justify-center text-5xl font-bold select-none"
 							>
 								{completedGrids[outerIndex]}
 							</div>
