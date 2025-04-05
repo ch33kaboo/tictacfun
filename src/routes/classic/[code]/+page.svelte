@@ -48,7 +48,9 @@
 		})
 		.on('broadcast', { event: 'game_move' }, ({ payload }) => {
 			const { index, player } = payload;
-			board[index] = player;
+			if (index !== -1) {
+				board[index] = player;
+			}
 			currentPlayer = player === 'X' ? 'O' : 'X';
 
 			// Set the last played index to trigger animation
@@ -115,23 +117,22 @@
 	function startTimer() {
 		if (timerInterval) cancelAnimationFrame(timerInterval);
 		timerStart = performance.now();
+
 		function updateTimer() {
 			let elapsed = (performance.now() - timerStart) / 1000;
 			timeLeft = Math.max(0, timerDuration - elapsed);
 
 			if (timeLeft > 0) {
 				timerInterval = requestAnimationFrame(updateTimer);
-			} else {
-				// Timer ended
-				if (!winner) {
-					subscription.send({
-						type: 'broadcast',
-						event: 'turn_timeout',
-						payload: {}
-					});
-					currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-					startTimer();
-				}
+			} else if (!winner) {
+				// Timer ended - make an empty move to switch turns
+				subscription.send({
+					type: 'broadcast',
+					event: 'game_move',
+					payload: { index: -1, player: currentPlayer }
+				});
+				currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+				startTimer();
 			}
 		}
 		timerInterval = requestAnimationFrame(updateTimer);
