@@ -27,6 +27,7 @@
 	let opponentScore = $state(0);
 	let activeGrid = $state<number | null>(null);
 	let hoveredGridIndex = $state<number | null>(null);
+	let completedGrids = $state(Array(9).fill('')); // Track completed grids
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -169,16 +170,28 @@
 
 	function makeMove(index: number) {
 		if (board[index] || winner || currentPlayer !== (isHost ? 'X' : 'O')) return;
-		if (activeGrid !== null && Math.floor(index / 9) !== activeGrid) return;
+
+		// Calculate which grid the move is in
+		const currentGrid = Math.floor(index / 9);
+		const targetGrid = index % 9;
+
+		// If we're in a specific grid and trying to play in a different one, and that grid is not completed, return
+		if (activeGrid !== null && currentGrid !== activeGrid && completedGrids[activeGrid] === '')
+			return;
+
+		// If the target grid is completed, allow playing anywhere
+		if (completedGrids[targetGrid] !== '') {
+			activeGrid = null;
+		} else {
+			activeGrid = targetGrid;
+		}
 
 		board[index] = currentPlayer;
-		const nextGrid = index % 9;
-		activeGrid = nextGrid;
 
 		subscription.send({
 			type: 'broadcast',
 			event: 'game_move',
-			payload: { index, player: currentPlayer, nextGrid }
+			payload: { index, player: currentPlayer, nextGrid: targetGrid }
 		});
 
 		currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
@@ -214,6 +227,7 @@
 					board[gridStart + a] === board[gridStart + c]
 				) {
 					gridWinners[grid] = board[gridStart + a];
+					completedGrids[grid] = board[gridStart + a]; // Mark this grid as completed
 					break;
 				}
 			}
@@ -315,6 +329,7 @@
 
 	function resetGame() {
 		board = Array(81).fill('');
+		completedGrids = Array(9).fill(''); // Reset completed grids
 		currentPlayer = nextStartingPlayer === 'host' ? 'X' : 'O';
 		nextStartingPlayer = nextStartingPlayer === 'host' ? 'guest' : 'host';
 		winner = null;
@@ -433,7 +448,12 @@
 					<div
 						class="border-base-content/20 bg-base-200 divide-base-content/20 grid grid-cols-3 divide-x divide-y border-2 transition-all duration-300
 						{hoveredGridIndex === outerIndex ? 'border-primary shadow-primary/40 bg-base-300 shadow-lg' : ''} 
-						{currentPlayer === (isHost ? 'X' : 'O') && (activeGrid === null || activeGrid === outerIndex)
+						{currentPlayer === (isHost ? 'X' : 'O') &&
+						((activeGrid === null && completedGrids[outerIndex] === '') ||
+							(activeGrid !== null &&
+								completedGrids[activeGrid] !== '' &&
+								completedGrids[outerIndex] === '') ||
+							(activeGrid === outerIndex && completedGrids[outerIndex] === ''))
 							? 'border-base-content/75'
 							: ''}
 						{outerIndex === 0 ? 'rounded-tl-xl' : ''}
@@ -441,19 +461,26 @@
 						{outerIndex === 6 ? 'rounded-bl-xl' : ''}
 						{outerIndex === 8 ? 'rounded-br-xl' : ''}"
 					>
-						{#each Array(9) as _, innerIndex}
-							{@const index = outerIndex * 9 + innerIndex}
+						{#if completedGrids[outerIndex]}
 							<div
-								class="border-base-content/20 flex items-center justify-center border
-{index === 0 ? 'rounded-tl-lg' : ''}
-										{index === 20 ? 'rounded-tr-lg' : ''}
-										{index === 60 ? 'rounded-bl-lg' : ''}
-										{index === 80 ? 'rounded-br-lg' : ''}
-								
-								"
+								class="col-span-3 row-span-3 flex h-full w-full items-center justify-center text-5xl font-bold select-none"
 							>
-								<button
-									class="btn btn-md aspect-square h-[38px] min-h-0 w-[38px] text-2xl font-bold transition-all duration-100
+								{completedGrids[outerIndex]}
+							</div>
+						{:else}
+							{#each Array(9) as _, innerIndex}
+								{@const index = outerIndex * 9 + innerIndex}
+								<div
+									class="border-base-content/20 flex items-center justify-center border
+									{index === 0 ? 'rounded-tl-lg' : ''}
+									{index === 20 ? 'rounded-tr-lg' : ''}
+									{index === 60 ? 'rounded-bl-lg' : ''}
+									{index === 80 ? 'rounded-br-lg' : ''}
+							
+									"
+								>
+									<button
+										class="btn btn-md aspect-square h-[38px] min-h-0 w-[38px] text-2xl font-bold transition-all duration-100
 										{board[index] ? 'btn-disabled' : 'btn-ghost hover:bg-base-300'} 
 										{lastPlayedIndex === index ? 'border-primary shadow-primary border-2' : ''}
 										{getCellClass(index)}
@@ -462,28 +489,32 @@
 										{index === 20 ? 'rounded-tr-lg' : ''}
 										{index === 60 ? 'rounded-bl-lg' : ''}
 										{index === 80 ? 'rounded-br-lg' : ''}"
-									onclick={() => makeMove(index)}
-									disabled={!!board[index] ||
-										winner ||
-										currentPlayer !== (isHost ? 'X' : 'O') ||
-										showingLastMove ||
-										(activeGrid !== null && Math.floor(index / 9) !== activeGrid)}
-									onmouseenter={() => {
-										if (
-											!board[index] &&
-											(activeGrid === null || Math.floor(index / 9) === activeGrid)
-										) {
-											hoveredGridIndex = Math.floor(innerIndex / 3) * 3 + (innerIndex % 3);
-										}
-									}}
-									onmouseleave={() => {
-										hoveredGridIndex = null;
-									}}
-								>
-									{board[index]}
-								</button>
-							</div>
-						{/each}
+										onclick={() => makeMove(index)}
+										disabled={!!board[index] ||
+											!!winner ||
+											currentPlayer !== (isHost ? 'X' : 'O') ||
+											showingLastMove ||
+											(activeGrid !== null &&
+												Math.floor(index / 9) !== activeGrid &&
+												completedGrids[activeGrid] === '')}
+										onmouseenter={() => {
+											if (
+												!board[index] &&
+												!completedGrids[Math.floor(index / 9)] &&
+												(activeGrid === null || Math.floor(index / 9) === activeGrid)
+											) {
+												hoveredGridIndex = Math.floor(innerIndex / 3) * 3 + (innerIndex % 3);
+											}
+										}}
+										onmouseleave={() => {
+											hoveredGridIndex = null;
+										}}
+									>
+										{board[index]}
+									</button>
+								</div>
+							{/each}
+						{/if}
 					</div>
 				{/each}
 			</div>
