@@ -448,7 +448,9 @@
 				{#each Array(9) as _, outerIndex}
 					<div
 						class="border-base-content/20 bg-base-200 divide-base-content/20 grid grid-cols-3 divide-x divide-y border-2 transition-all duration-300
-						{hoveredGridIndex === outerIndex ? 'border-primary shadow-primary/40 bg-base-300 shadow-lg' : ''} 
+						{hoveredGridIndex === outerIndex || (hoveredGridIndex === -1 && completedGrids[outerIndex] === '')
+							? 'border-primary shadow-primary/40 bg-base-300 shadow-lg'
+							: ''} 
 						{!showingLastMove &&
 						!winner &&
 						currentPlayer === (isHost ? 'X' : 'O') &&
@@ -508,7 +510,13 @@
 													(activeGrid !== null && completedGrids[activeGrid] !== '') ||
 													Math.floor(index / 9) === activeGrid)
 											) {
-												hoveredGridIndex = Math.floor(innerIndex / 3) * 3 + (innerIndex % 3);
+												const targetGrid = index % 9;
+												if (completedGrids[targetGrid] !== '') {
+													// If the target grid is taken, highlight all non-taken grids
+													hoveredGridIndex = -1; // Special value to indicate all non-taken grids should be highlighted
+												} else {
+													hoveredGridIndex = Math.floor(innerIndex / 3) * 3 + (innerIndex % 3);
+												}
 											}
 										}}
 										onmouseleave={() => {
