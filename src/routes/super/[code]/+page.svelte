@@ -228,6 +228,7 @@
 				) {
 					gridWinners[grid] = board[gridStart + a];
 					completedGrids[grid] = board[gridStart + a]; // Mark this grid as completed
+					hoveredGridIndex = null; // Clear hover effect when a grid is completed
 					break;
 				}
 			}
