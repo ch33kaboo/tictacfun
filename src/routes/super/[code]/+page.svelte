@@ -504,7 +504,9 @@
 											if (
 												!board[index] &&
 												!completedGrids[Math.floor(index / 9)] &&
-												(activeGrid === null || Math.floor(index / 9) === activeGrid)
+												(activeGrid === null ||
+													(activeGrid !== null && completedGrids[activeGrid] !== '') ||
+													Math.floor(index / 9) === activeGrid)
 											) {
 												hoveredGridIndex = Math.floor(innerIndex / 3) * 3 + (innerIndex % 3);
 											}
