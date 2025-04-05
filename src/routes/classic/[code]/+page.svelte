@@ -367,7 +367,11 @@
 							class="mb-4 flex min-h-11 min-w-[200px] items-center justify-center text-2xl font-bold"
 						>
 							<h2>
-								{currentPlayer === (isHost ? 'X' : 'O') ? 'Your turn!' : "Opponent's turn"}
+								{#if currentPlayer === (isHost ? 'X' : 'O')}
+									{@html `Your turn <span class="text-lg">(${isHost ? 'X' : 'O'})</span>`}
+								{:else}
+									Opponent's turn
+								{/if}
 							</h2>
 						</div>
 					{/if}
