@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { onMount, onDestroy } from 'svelte';
 	import { supabase } from '$lib/supabase';
+	import { fade } from 'svelte/transition';
 
 	const gameCode = page.params.code;
 	let timerDuration = $state(parseInt(page.url.searchParams.get('timer') || '0', 10));
@@ -452,7 +453,7 @@
 			<div class="grid grid-cols-3 gap-1.5">
 				{#each Array(9) as _, outerIndex}
 					<div
-						class="border-base-content/20 bg-base-200 divide-base-content/20 grid grid-cols-3 divide-x divide-y border-2 transition-all duration-300
+						class="border-base-content/20 bg-base-200 divide-base-content/20 relative grid grid-cols-3 divide-x divide-y border-2 transition-all duration-300
 						{hoveredGridIndex === outerIndex || (hoveredGridIndex === -1 && completedGrids[outerIndex] === '')
 							? 'border-primary shadow-primary/40 bg-base-300 shadow-lg'
 							: ''} 
@@ -473,24 +474,31 @@
 					>
 						{#if completedGrids[outerIndex]}
 							<div
-								class="col-span-3 row-span-3 flex aspect-square h-full w-full items-center justify-center text-5xl font-bold select-none"
+								class="bg-base-200 absolute col-span-3 row-span-3 flex aspect-square h-full w-full items-center justify-center border text-5xl font-bold select-none {outerIndex ===
+								0
+									? 'rounded-tl-xl'
+									: ''}
+						{outerIndex === 2 ? 'rounded-tr-xl' : ''}
+						{outerIndex === 6 ? 'rounded-bl-xl' : ''}
+						{outerIndex === 8 ? 'rounded-br-xl' : ''}"
+								in:fade={{ delay: 600, duration: 200 }}
 							>
 								{completedGrids[outerIndex]}
 							</div>
-						{:else}
-							{#each Array(9) as _, innerIndex}
-								{@const index = outerIndex * 9 + innerIndex}
-								<div
-									class="border-base-content/20 flex items-center justify-center border
+						{/if}
+						{#each Array(9) as _, innerIndex}
+							{@const index = outerIndex * 9 + innerIndex}
+							<div
+								class="border-base-content/20 flex items-center justify-center border
 									{index === 0 ? 'rounded-tl-lg' : ''}
 									{index === 20 ? 'rounded-tr-lg' : ''}
 									{index === 60 ? 'rounded-bl-lg' : ''}
 									{index === 80 ? 'rounded-br-lg' : ''}
 							
 									"
-								>
-									<button
-										class="btn btn-md aspect-square h-[38px] min-h-0 w-[38px] text-2xl font-bold transition-all duration-100
+							>
+								<button
+									class="btn btn-md aspect-square h-[38px] min-h-0 w-[38px] text-2xl font-bold transition-all duration-100
 										{board[index] ? 'btn-disabled' : 'btn-ghost hover:bg-base-300'} 
 										{lastPlayedIndex === index ? 'border-primary shadow-primary border-2' : ''}
 										{getCellClass(index)}
@@ -499,40 +507,39 @@
 										{index === 20 ? 'rounded-tr-lg' : ''}
 										{index === 60 ? 'rounded-bl-lg' : ''}
 										{index === 80 ? 'rounded-br-lg' : ''}"
-										onclick={() => makeMove(index)}
-										disabled={!!board[index] ||
-											!!winner ||
-											currentPlayer !== (isHost ? 'X' : 'O') ||
-											showingLastMove ||
-											(activeGrid !== null &&
-												Math.floor(index / 9) !== activeGrid &&
-												completedGrids[activeGrid] === '')}
-										onmouseenter={() => {
-											if (
-												!board[index] &&
-												!completedGrids[Math.floor(index / 9)] &&
-												(activeGrid === null ||
-													(activeGrid !== null && completedGrids[activeGrid] !== '') ||
-													Math.floor(index / 9) === activeGrid)
-											) {
-												const targetGrid = index % 9;
-												if (completedGrids[targetGrid] !== '') {
-													// If the target grid is taken, highlight all non-taken grids
-													hoveredGridIndex = -1; // Special value to indicate all non-taken grids should be highlighted
-												} else {
-													hoveredGridIndex = Math.floor(innerIndex / 3) * 3 + (innerIndex % 3);
-												}
+									onclick={() => makeMove(index)}
+									disabled={!!board[index] ||
+										!!winner ||
+										currentPlayer !== (isHost ? 'X' : 'O') ||
+										showingLastMove ||
+										(activeGrid !== null &&
+											Math.floor(index / 9) !== activeGrid &&
+											completedGrids[activeGrid] === '')}
+									onmouseenter={() => {
+										if (
+											!board[index] &&
+											!completedGrids[Math.floor(index / 9)] &&
+											(activeGrid === null ||
+												(activeGrid !== null && completedGrids[activeGrid] !== '') ||
+												Math.floor(index / 9) === activeGrid)
+										) {
+											const targetGrid = index % 9;
+											if (completedGrids[targetGrid] !== '') {
+												// If the target grid is taken, highlight all non-taken grids
+												hoveredGridIndex = -1; // Special value to indicate all non-taken grids should be highlighted
+											} else {
+												hoveredGridIndex = Math.floor(innerIndex / 3) * 3 + (innerIndex % 3);
 											}
-										}}
-										onmouseleave={() => {
-											hoveredGridIndex = null;
-										}}
-									>
-										{board[index]}
-									</button>
-								</div>
-							{/each}
-						{/if}
+										}
+									}}
+									onmouseleave={() => {
+										hoveredGridIndex = null;
+									}}
+								>
+									{board[index]}
+								</button>
+							</div>
+						{/each}
 					</div>
 				{/each}
 			</div>
