@@ -4,9 +4,30 @@
 	let timerEnabled = $state(false);
 	let timerDuration = $state(10);
 	let selectedGame = $state('classic');
+	let createTab: HTMLButtonElement;
+	let joinTab: HTMLButtonElement;
+	let underlineWidth = $state(0);
+	let underlineLeft = $state(0);
 	import { goto } from '$app/navigation';
 	import { supabase } from '$lib/supabase';
 	let errorMessage = $state('');
+
+	$effect(() => {
+		if (createTab) {
+			underlineWidth = createTab.offsetWidth;
+			underlineLeft = createTab.offsetLeft;
+		}
+	});
+
+	$effect(() => {
+		if (activeTab === 'create' && createTab) {
+			underlineWidth = createTab.offsetWidth;
+			underlineLeft = createTab.offsetLeft;
+		} else if (activeTab === 'join' && joinTab) {
+			underlineWidth = joinTab.offsetWidth;
+			underlineLeft = joinTab.offsetLeft;
+		}
+	});
 
 	function generateGameCode() {
 		const gameTypeDigit = selectedGame === 'classic' ? '0' : '1';
@@ -78,19 +99,27 @@
 	</h1>
 
 	<div class="bg-base-200 w-full max-w-2xl rounded-lg p-6 shadow-xl">
-		<div class="tabs tabs-boxed mb-6">
-			<button
-				class="tab {activeTab === 'create' ? 'tab-active' : ''}"
-				onclick={() => (activeTab = 'create')}
-			>
-				Create Game
-			</button>
-			<button
-				class="tab {activeTab === 'join' ? 'tab-active' : ''}"
-				onclick={() => (activeTab = 'join')}
-			>
-				Join Game
-			</button>
+		<div class="relative mb-6">
+			<div class="tabs tabs-boxed">
+				<button
+					class="tab {activeTab === 'create' ? 'tab-active' : ''}"
+					onclick={() => (activeTab = 'create')}
+					bind:this={createTab}
+				>
+					Create Game
+				</button>
+				<button
+					class="tab {activeTab === 'join' ? 'tab-active' : ''}"
+					onclick={() => (activeTab = 'join')}
+					bind:this={joinTab}
+				>
+					Join Game
+				</button>
+			</div>
+			<div
+				class="bg-base-content absolute bottom-0 h-0.5 transition-all duration-300"
+				style="width: {underlineWidth}px; left: {underlineLeft}px;"
+			></div>
 		</div>
 
 		{#if activeTab === 'create'}
