@@ -94,7 +94,10 @@
 </script>
 
 <main class="mt-10 flex flex-col items-center justify-start">
-	<h1 class="mb-8 text-center text-4xl" style="font-family: 'milkyway', sans-serif;">
+	<h1
+		class="-mx-3 mb-8 text-center text-4xl tracking-tight sm:tracking-normal"
+		style="font-family: 'milkyway', sans-serif;"
+	>
 		Invite your friends and play Tic Tac Toe now
 	</h1>
 
