@@ -392,7 +392,7 @@
 			<div class="grid grid-cols-3 gap-1">
 				{#each board as cell, index}
 					<button
-						class="btn btn-lg aspect-square text-2xl font-bold transition-all duration-100
+						class="btn btn-lg aspect-square text-2xl font-bold transition-all duration-300 ease-in-out
 							{cell && !isWinningCell(index)
 							? 'btn-disabled'
 							: !isWinningCell(index)
