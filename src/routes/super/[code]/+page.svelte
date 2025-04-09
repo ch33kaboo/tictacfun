@@ -482,7 +482,7 @@
 							(activeGrid === outerIndex && completedGrids[outerIndex] === ''))
 							? 'border-base-content/75'
 							: ''}
-						{winningCombination && winningCombination.includes(outerIndex)
+						{!showingLastMove && winningCombination && winningCombination.includes(outerIndex)
 							? (isHost && winner === 'X') || (!isHost && winner === 'O')
 								? 'border-primary bg-primary/30'
 								: 'border-neutral bg-neutral/30'
@@ -494,14 +494,14 @@
 					>
 						{#if completedGrids[outerIndex]}
 							<div
-								class="absolute col-span-3 row-span-3 flex aspect-square h-full w-full items-center justify-center border text-5xl font-bold select-none {outerIndex ===
+								class="absolute col-span-3 row-span-3 flex aspect-square h-full w-full items-center justify-center border text-5xl font-bold transition-all duration-300 ease-in-out select-none {outerIndex ===
 								0
 									? 'rounded-tl-xl'
 									: ''}
 						{outerIndex === 2 ? 'rounded-tr-xl' : ''}
 						{outerIndex === 6 ? 'rounded-bl-xl' : ''}
 						{outerIndex === 8 ? 'rounded-br-xl' : ''}
-						{winningCombination && winningCombination.includes(outerIndex)
+						{!showingLastMove && winningCombination && winningCombination.includes(outerIndex)
 									? (isHost && winner === 'X') || (!isHost && winner === 'O')
 										? 'bg-primary text-primary-content'
 										: 'bg-neutral text-neutral-content'
