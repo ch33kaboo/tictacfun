@@ -103,7 +103,7 @@
 	</h1>
 
 	<div
-		class="bg-base-200 min-h-[450px] w-full max-w-2xl overflow-x-hidden overflow-y-visible rounded-lg p-6 shadow-xl sm:min-h-[410px]"
+		class="bg-base-200 min-h-[450px] w-full max-w-2xl overflow-x-hidden overflow-y-visible rounded-lg p-6 shadow-xl sm:min-h-[420px]"
 	>
 		<div class="relative mb-6">
 			<div class="tabs tabs-boxed">
