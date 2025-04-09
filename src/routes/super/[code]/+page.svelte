@@ -221,6 +221,7 @@
 				[2, 4, 6] // Diagonals
 			];
 
+			let gridWinner = '';
 			for (const line of lines) {
 				const [a, b, c] = line;
 				if (
@@ -228,12 +229,24 @@
 					board[gridStart + a] === board[gridStart + b] &&
 					board[gridStart + a] === board[gridStart + c]
 				) {
-					gridWinners[grid] = board[gridStart + a];
-					completedGrids[grid] = board[gridStart + a]; // Mark this grid as completed
-					hoveredGridIndex = null; // Clear hover effect when a grid is completed
+					gridWinner = board[gridStart + a];
 					break;
 				}
 			}
+
+			// Check if the grid is full but no winner
+			const isGridFull = Array(9)
+				.fill(0)
+				.every((_, i) => board[gridStart + i] !== '');
+			
+			if (gridWinner) {
+				gridWinners[grid] = gridWinner;
+				completedGrids[grid] = gridWinner;
+			} else if (isGridFull) {
+				gridWinners[grid] = 'draw';
+				completedGrids[grid] = 'draw';
+			}
+			hoveredGridIndex = null; // Clear hover effect when a grid is completed
 		}
 
 		// Check if any player has won the overall game
@@ -256,7 +269,8 @@
 			if (
 				gridWinners[a] &&
 				gridWinners[a] === gridWinners[b] &&
-				gridWinners[a] === gridWinners[c]
+				gridWinners[a] === gridWinners[c] &&
+				gridWinners[a] !== 'draw' // Only consider X or O as winning conditions
 			) {
 				gameResult = gridWinners[a];
 				winningCombination = line;
@@ -264,7 +278,8 @@
 			}
 		}
 
-		if (!gameResult && board.every((cell) => cell !== '')) {
+		// Only consider the game a draw if all grids are completed (either won or drawn)
+		if (!gameResult && completedGrids.every(grid => grid !== '')) {
 			gameResult = 'draw';
 		}
 
@@ -483,7 +498,11 @@
 						{outerIndex === 8 ? 'rounded-br-xl' : ''}"
 								in:fade={{ delay: 600, duration: 200 }}
 							>
-								{completedGrids[outerIndex]}
+								{#if completedGrids[outerIndex] === 'draw'}
+									<span class="text-3xl">Draw</span>
+								{:else}
+									{completedGrids[outerIndex]}
+								{/if}
 							</div>
 						{/if}
 						{#each Array(9) as _, innerIndex}
