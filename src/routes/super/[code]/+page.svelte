@@ -238,7 +238,7 @@
 			const isGridFull = Array(9)
 				.fill(0)
 				.every((_, i) => board[gridStart + i] !== '');
-			
+
 			if (gridWinner) {
 				gridWinners[grid] = gridWinner;
 				completedGrids[grid] = gridWinner;
@@ -279,7 +279,7 @@
 		}
 
 		// Only consider the game a draw if all grids are completed (either won or drawn)
-		if (!gameResult && completedGrids.every(grid => grid !== '')) {
+		if (!gameResult && completedGrids.every((grid) => grid !== '')) {
 			gameResult = 'draw';
 		}
 
