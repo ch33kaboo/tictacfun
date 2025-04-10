@@ -1,8 +1,8 @@
-# Tic-Tac-Toe
+# Tic Tac Fun
 
 A collection of Tic-Tac-Toe game variations, built with modern web technologies.
 
-Invite your friends and play the classic version or try out new twists!
+Invite your friends and play the classic version or try out new twists! Play now on [tictacfun.live](https://tictacfun.live).
 
 ## Tech Stack
 
@@ -14,8 +14,8 @@ Invite your friends and play the classic version or try out new twists!
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/ch33kaboo/tictactoe.git
-   cd tictactoe
+   git clone https://github.com/ch33kaboo/tictacfun.git
+   cd tictacfun
    ```
 2. Install dependencies:
    ```sh
