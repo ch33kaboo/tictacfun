@@ -8,10 +8,20 @@
 	let joinTab: HTMLButtonElement;
 	let underlineWidth = $state(0);
 	let underlineLeft = $state(0);
+	let isSmallScreen = $state(false);
 	import { goto } from '$app/navigation';
 	import { supabase } from '$lib/supabase';
 	import { fly } from 'svelte/transition';
 	let errorMessage = $state('');
+
+	$effect(() => {
+		const checkScreenSize = () => {
+			isSmallScreen = window.innerWidth < 640; // sm breakpoint
+		};
+		checkScreenSize();
+		window.addEventListener('resize', checkScreenSize);
+		return () => window.removeEventListener('resize', checkScreenSize);
+	});
 
 	$effect(() => {
 		if (createTab) {
@@ -103,19 +113,19 @@
 	</h1>
 
 	<div
-		class="bg-base-200 min-h-[450px] w-full max-w-2xl overflow-x-hidden overflow-y-visible rounded-lg p-6 shadow-xl sm:min-h-[420px]"
+		class="bg-base-200 mb-6 min-h-[450px] w-full max-w-2xl overflow-x-hidden overflow-y-visible rounded-lg p-6 shadow-xl sm:mb-0 sm:min-h-[420px]"
 	>
 		<div class="relative mb-6">
 			<div class="tabs tabs-boxed">
 				<button
-					class="tab {activeTab === 'create' ? 'tab-active' : ''}"
+					class="tab {activeTab === 'create' ? 'tab-active border-base-content border-b-2' : ''}"
 					onclick={() => (activeTab = 'create')}
 					bind:this={createTab}
 				>
 					Create Game
 				</button>
 				<button
-					class="tab {activeTab === 'join' ? 'tab-active' : ''}"
+					class="tab {activeTab === 'join' ? 'tab-active border-base-content border-b-2' : ''}"
 					onclick={() => (activeTab = 'join')}
 					bind:this={joinTab}
 				>
@@ -123,13 +133,17 @@
 				</button>
 			</div>
 			<div
-				class="bg-base-content absolute bottom-0 h-0.5 transition-all duration-300"
+				class="bg-base-content bottom-0 hidden h-0.5 transition-all duration-300 sm:absolute sm:block"
 				style="width: {underlineWidth}px; left: {underlineLeft}px;"
 			></div>
 		</div>
 		<div class="relative">
 			{#if activeTab === 'create'}
-				<div in:fly={{ x: -500, delay: 100 }} out:fly={{ x: -500 }} class="absolute">
+				<div
+					in:fly={!isSmallScreen ? { x: -500, delay: 100 } : { duration: 0 }}
+					out:fly={!isSmallScreen ? { x: -500 } : { duration: 0 }}
+					class="sm:absolute"
+				>
 					<div class="mb-6">
 						<label class="label cursor-pointer">
 							<span class="label-text">Enable turn timer</span>
@@ -151,7 +165,7 @@
 							</div>
 						{/if}
 					</div>
-					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<div class="grid grid-cols-1 gap-4 sm:mb-5 md:mb-0 md:grid-cols-2">
 						<div class="card bg-base-100 shadow-md transition-transform hover:scale-105">
 							<div class="card-body">
 								<h2 class="card-title">Classic Tic-Tac-Toe</h2>
@@ -190,9 +204,9 @@
 				</div>
 			{:else}
 				<div
-					class="absolute flex flex-col items-start gap-4"
-					in:fly={{ x: 300, delay: 100 }}
-					out:fly={{ x: 500 }}
+					class="flex flex-col items-start gap-4 sm:absolute"
+					in:fly={!isSmallScreen ? { x: 300, delay: 100 } : { duration: 0 }}
+					out:fly={!isSmallScreen ? { x: 500 } : { duration: 0 }}
 				>
 					<div class="form-control w-full max-w-md">
 						<label class="label" for="gameCode">
