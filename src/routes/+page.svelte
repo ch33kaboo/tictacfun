@@ -152,7 +152,7 @@
 						{#if timerEnabled}
 							<div class="form-control mt-2">
 								<label class="label" for="timer">
-									<span class="label-text">Timer duration (seconds)</span>
+									<span class="label-text mb-0.5">Timer duration (seconds)</span>
 								</label>
 								<input
 									type="number"
