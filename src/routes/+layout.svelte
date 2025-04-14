@@ -19,11 +19,20 @@
 </script>
 
 <div
-	class="bg-base-100 min-h-screen {theme === 'sunset' ? 'text-gray-200' : ''}"
+	class="bg-base-100 relative min-h-screen overflow-hidden {theme === 'sunset'
+		? 'text-gray-200'
+		: ''}"
 	data-theme={theme}
 >
-	<div class="container mx-auto px-4">
-		<div class="navbar bg-base-100">
+	<div
+		class="pointer-events-none absolute inset-0 z-0 bg-[url('./pattern.png')] bg-repeat {theme ===
+		'cmyk'
+			? 'opacity-[3%]'
+			: 'opacity-[10%]'}"
+	></div>
+
+	<div class="relative z-10 container mx-auto px-4">
+		<div class="navbar">
 			<div class="flex-1">
 				<a href="/" class="btn btn-ghost">
 					<img
