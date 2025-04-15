@@ -10,6 +10,8 @@ Invite your friends and play the classic version or try out new twists! Play now
 - Tailwind
 - Supabase
 
+Familiar with Svelte and want to contribute? Check out [contribute.md](./contribute.md), pick a game variation, and start building!
+
 ## Setup
 
 1. Clone the repository:
