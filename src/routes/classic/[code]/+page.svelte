@@ -12,6 +12,7 @@
 	let currentPlayer = $state('X');
 	let board = $state(Array(9).fill(''));
 	let winner = $state<string | null>(null);
+	// svelte-ignore state_referenced_locally
 	let timeLeft = $state(timerDuration);
 	let timerInterval: number | undefined;
 	let gameUrl = $state('');

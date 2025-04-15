@@ -13,6 +13,7 @@
 	let currentPlayer = $state('X');
 	let board = $state(Array(81).fill('')); // 9x9 grid for super tic-tac-toe
 	let winner = $state<string | null>(null);
+	// svelte-ignore state_referenced_locally
 	let timeLeft = $state(timerDuration);
 	let timerInterval: number | undefined;
 	let gameUrl = $state('');
