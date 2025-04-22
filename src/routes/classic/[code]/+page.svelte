@@ -109,6 +109,18 @@
 		playerScore = isHost ? gameState.XScore : gameState.OScore;
 		opponentScore = isHost ? gameState.OScore : gameState.XScore;
 
+		// Notify server that player has connected
+		fetch(`/classic/${gameCode}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				action: 'playerConnected',
+				playerId: isHost ? 'host' : 'guest'
+			})
+		});
+
 		await subscription.subscribe(async (status) => {
 			if (status === 'SUBSCRIBED') {
 				const urlParams = new URLSearchParams(window.location.search);
@@ -119,6 +131,23 @@
 	});
 
 	onDestroy(() => {
+		// Only execute in browser environment
+		if (typeof window !== 'undefined') {
+			// Notify server that player has disconnected
+			fetch(`/classic/${gameCode}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					action: 'playerDisconnected',
+					playerId: isHost ? 'host' : 'guest'
+				})
+			}).catch(() => {
+				// Ignore errors during disconnect
+			});
+		}
+
 		subscription.unsubscribe();
 		if (timerInterval) clearInterval(timerInterval);
 	});
