@@ -106,6 +106,16 @@
 		urlParams.set('host', 'false');
 		gameUrl = `${window.location.origin}/super/${gameCode}?${urlParams.toString()}`;
 
+		// Fetch initial game state from server
+		const response = await fetch(`/super/${gameCode}`);
+		const gameState = await response.json();
+		board = gameState.board;
+		currentPlayer = gameState.currentPlayer;
+		playerScore = isHost ? gameState.XScore : gameState.OScore;
+		opponentScore = isHost ? gameState.OScore : gameState.XScore;
+		activeGrid = gameState.activeGrid;
+		completedGrids = gameState.completedGrids;
+
 		await subscription.subscribe(async (status) => {
 			if (status === 'SUBSCRIBED') {
 				const urlParams = new URLSearchParams(window.location.search);
@@ -191,6 +201,20 @@
 
 		board[index] = currentPlayer;
 
+		// Send move to server
+		fetch(`/super/${gameCode}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				action: 'move',
+				index,
+				player: currentPlayer,
+				nextGrid: targetGrid
+			})
+		});
+
 		subscription.send({
 			type: 'broadcast',
 			event: 'game_move',
@@ -250,6 +274,18 @@
 			hoveredGridIndex = null; // Clear hover effect when a grid is completed
 		}
 
+		// Send completed grids update to server
+		fetch(`/super/${gameCode}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				action: 'updateCompletedGrids',
+				completedGrids
+			})
+		});
+
 		// Check if any player has won the overall game
 		const lines = [
 			[0, 1, 2],
@@ -268,18 +304,16 @@
 		for (const line of lines) {
 			const [a, b, c] = line;
 			if (
-				gridWinners[a] &&
-				gridWinners[a] === gridWinners[b] &&
-				gridWinners[a] === gridWinners[c] &&
-				gridWinners[a] !== 'draw' // Only consider X or O as winning conditions
+				completedGrids[a] &&
+				completedGrids[a] === completedGrids[b] &&
+				completedGrids[a] === completedGrids[c]
 			) {
-				gameResult = gridWinners[a];
+				gameResult = completedGrids[a];
 				winningCombination = line;
 				break;
 			}
 		}
 
-		// Only consider the game a draw if all grids are completed (either won or drawn)
 		if (!gameResult && completedGrids.every((grid) => grid !== '')) {
 			gameResult = 'draw';
 		}
@@ -298,8 +332,20 @@
 					} else {
 						opponentScore++;
 					}
+					// Send score update to server
+					fetch(`/super/${gameCode}`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							action: 'updateScore',
+							playerWon,
+							winner: gameResult
+						})
+					});
 				}
-			}, 2000);
+			}, 2000); // Show last move for 2 seconds before displaying the result
 		}
 	}
 
@@ -348,7 +394,6 @@
 
 	function resetGame() {
 		board = Array(81).fill('');
-		completedGrids = Array(9).fill(''); // Reset completed grids
 		currentPlayer = nextStartingPlayer === 'host' ? 'X' : 'O';
 		nextStartingPlayer = nextStartingPlayer === 'host' ? 'guest' : 'host';
 		winner = null;
@@ -360,8 +405,21 @@
 		lastPlayedIndex = null;
 		winningCombination = null;
 		activeGrid = null;
+		completedGrids = Array(9).fill('');
 		if (timerInterval) clearInterval(timerInterval);
 		if (timerDuration > 0) timeLeft = timerDuration;
+
+		// Send reset action to server
+		fetch(`/super/${gameCode}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				action: 'reset',
+				currentPlayer
+			})
+		});
 	}
 
 	function shouldShowPlayAgainMessage() {

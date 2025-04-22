@@ -101,6 +101,14 @@
 		urlParams.set('host', 'false');
 		gameUrl = `${window.location.origin}/classic/${gameCode}?${urlParams.toString()}`;
 
+		// Fetch initial game state from server
+		const response = await fetch(`/classic/${gameCode}`);
+		const gameState = await response.json();
+		board = gameState.board;
+		currentPlayer = gameState.currentPlayer;
+		playerScore = isHost ? gameState.XScore : gameState.OScore;
+		opponentScore = isHost ? gameState.OScore : gameState.XScore;
+
 		await subscription.subscribe(async (status) => {
 			if (status === 'SUBSCRIBED') {
 				const urlParams = new URLSearchParams(window.location.search);
@@ -170,6 +178,20 @@
 		if (board[index] || winner || currentPlayer === (isHost ? 'O' : 'X')) return;
 
 		board[index] = currentPlayer;
+
+		// Send move to server
+		fetch(`/classic/${gameCode}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				action: 'move',
+				index,
+				player: currentPlayer
+			})
+		});
+
 		subscription.send({
 			type: 'broadcast',
 			event: 'game_move',
@@ -227,6 +249,18 @@
 					} else {
 						opponentScore++;
 					}
+					// Send score update to server
+					fetch(`/classic/${gameCode}`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							action: 'updateScore',
+							playerWon,
+							winner: gameResult
+						})
+					});
 				}
 			}, 2000); // Show last move for 2 seconds before displaying the result
 		}
@@ -286,6 +320,18 @@
 		winningCombination = null;
 		if (timerInterval) clearInterval(timerInterval);
 		if (timerDuration > 0) timeLeft = timerDuration;
+
+		// Send reset action to server
+		fetch(`/classic/${gameCode}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				action: 'reset',
+				currentPlayer
+			})
+		});
 	}
 
 	function shouldShowPlayAgainMessage() {
