@@ -25,7 +25,7 @@
 	data-theme={theme}
 >
 	<div
-		class="pointer-events-none absolute inset-0 z-0 bg-[url('./pattern.png')] bg-repeat {theme ===
+		class="pointer-events-none fixed inset-0 z-0 bg-[url('/pattern.png')] bg-repeat {theme ===
 		'cmyk'
 			? 'opacity-[3%]'
 			: 'opacity-[10%]'}"
